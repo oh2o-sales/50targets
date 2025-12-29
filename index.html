@@ -9,7 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .profile-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
@@ -18,7 +18,7 @@
         .sidebar-open { transform: translateX(0) !important; }
         .note-card { background: #f1f5f9; padding: 14px; border-radius: 16px; border-left: 4px solid #3b82f6; margin-bottom: 10px; }
         .action-btn { transition: all 0.2s; }
-        .action-btn:active { scale: 0.95; opacity: 0.8; }
+        .action-btn:active { transform: scale(0.95); opacity: 0.8; }
     </style>
 </head>
 <body class="pb-20">
@@ -26,7 +26,7 @@
     <div id="sidebar-overlay" onclick="toggleMenu()" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]"></div>
     <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-2xl -translate-x-full p-6 flex flex-col">
         <div class="flex flex-col items-center mb-10">
-            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 w-auto mb-2">
+            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 w-auto mb-2" alt="Logo">
             <p class="text-[10px] font-black text-slate-400 tracking-widest uppercase">Target Manager</p>
         </div>
         <nav class="space-y-1 flex-1">
@@ -38,7 +38,9 @@
     </div>
 
     <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
-        <button onclick="toggleMenu()" class="p-2 text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2.5"></path></svg></button>
+        <button onclick="toggleMenu()" class="p-2 text-slate-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2.5" stroke-linecap="round"></path></svg>
+        </button>
         <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Top 50 Targets Portal</span>
         <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase"></div>
     </header>
@@ -47,19 +49,24 @@
         <div class="flex gap-2 max-w-md mx-auto">
             <div class="relative flex-1">
                 <input type="text" id="search" oninput="handleSearch()" placeholder="Search targets..." class="w-full p-4 pl-12 rounded-2xl bg-white shadow-sm border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
-                <div class="absolute left-4 top-4 text-slate-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg></div>
+                <div class="absolute left-4 top-4 text-slate-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg>
+                </div>
             </div>
         </div>
     </div>
 
     <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
-        </div>
+        <p class="text-center text-slate-400 py-10">Loading targets...</p>
+    </div>
 
     <div id="profile-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-6">
         <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
             <div class="flex justify-between items-start mb-6">
                 <h2 id="profile-name" class="text-2xl font-black text-slate-800 leading-tight"></h2>
-                <button onclick="closeProfile()" class="text-slate-300"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="3"></path></svg></button>
+                <button onclick="closeProfile()" class="text-slate-300">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="3"></path></svg>
+                </button>
             </div>
             <div id="profile-details"></div>
             <div class="mt-6 border-t pt-6">
@@ -107,7 +114,7 @@
     </div>
 
     <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-28 w-auto mb-4">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-28 w-auto mb-4" alt="Logo">
         <h1 class="text-xl font-black text-slate-900 mb-12 uppercase tracking-widest">Top 50 Targets Portal</h1>
         <div class="w-full max-w-xs bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-xl text-center">
             <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full p-5 rounded-2xl bg-slate-50 border-none text-center mb-4 outline-none font-bold">
@@ -135,7 +142,10 @@
                 const data = await response.json();
                 allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
                 renderLeads();
-            } catch (e) { console.error("Fetch Error:", e); }
+            } catch (e) { 
+                console.error("Fetch Error:", e);
+                document.getElementById('lead-list').innerHTML = `<p class="text-center text-red-500 font-bold p-10">Error loading data. Please refresh.</p>`;
+            }
         }
 
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('sidebar-open'); document.getElementById('sidebar-overlay').classList.toggle('hidden'); }
@@ -143,14 +153,16 @@
 
         function openProfile(name) {
             const l = allLeads.find(lead => lead['Lead Name'] === name);
-            document.getElementById('profile-name').innerText = l['Lead Name'];
+            if (!l) return;
             
-            // FIX: Using "Phone" key as seen in spreadsheet Column D
-            const displayPhone = l['Phone'] || '---';
+            document.getElementById('profile-name').innerText = l['Lead Name'];
+            const displayPhone = l['Phone'] || 'No Phone';
 
             document.getElementById('profile-details').innerHTML = `
                 <p class="profile-label">Main Contact Details</p>
-                <p class="profile-value">${displayPhone} • ${l['Address'] || '---'}</p>
+                <p class="profile-value">${displayPhone}</p>
+                <p class="profile-label">Address</p>
+                <p class="profile-value">${l['Address'] || '---'}</p>
                 <div class="grid grid-cols-2 gap-4">
                     <div><p class="profile-label">Gatekeeper</p><p class="profile-value">${l['Gatekeeper Name'] || '---'}</p></div>
                     <div><p class="profile-label">Purchasing</p><p class="profile-value">${l['Purchasing Dept'] || '---'}</p></div>
@@ -162,7 +174,8 @@
             let notesHtml = '';
             noteKeys.forEach((key, index) => {
                 if (l[key] && l[key] !== '---') {
-                    notesHtml += `<div class="note-card"><p class="text-[9px] font-black text-blue-500 uppercase mb-1">${dateKeys[index]} (${formatDateUI(cleanDate(l[dateKeys[index]])))</p><p class="text-sm text-slate-700 font-medium">"${l[key]}"</p></div>`;
+                    const d = formatDateUI(cleanDate(l[dateKeys[index]]));
+                    notesHtml += `<div class="note-card"><p class="text-[9px] font-black text-blue-500 uppercase mb-1">${dateKeys[index]} (${d})</p><p class="text-sm text-slate-700 font-medium">"${l[key]}"</p></div>`;
                 }
             });
             document.getElementById('notes-history').innerHTML = notesHtml || '<p class="text-center text-slate-300 py-4 font-bold italic text-sm">No notes recorded.</p>';
@@ -182,7 +195,13 @@
             const q = document.getElementById('search').value.toLowerCase();
             if (q) filtered = filtered.filter(l => l['Lead Name'].toLowerCase().includes(q));
 
-            document.getElementById('lead-list').innerHTML = filtered.map(l => {
+            const container = document.getElementById('lead-list');
+            if (filtered.length === 0) {
+                container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found.</p>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(l => {
                 const dates = [cleanDate(l['First Touch']), cleanDate(l['Follow up 1']), cleanDate(l['Follow up 2']), cleanDate(l['Follow up 3'])].filter(d => d !== null);
                 const lastActivity = dates.length > 0 ? new Date(Math.max(...dates)) : null;
 
@@ -207,12 +226,13 @@
                         <div class="text-right"><p class="data-label">Status</p><p class="text-[10px] font-bold text-slate-600">${l['Status'] || 'Active'}</p></div>
                     </div>
                     <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg action-btn">Update Visit</button>
-                </div>
-            `}).join('');
+                </div>`;
+            }).join('');
         }
 
         function openModal(name) {
             const lead = allLeads.find(l => l['Lead Name'] === name);
+            if (!lead) return;
             document.getElementById('modal-title').innerText = name;
             document.getElementById('status-input').value = lead['Status'] || "Active";
             document.getElementById('note-input').value = "";
@@ -231,8 +251,13 @@
                 notes: document.getElementById('note-input').value 
             };
             btn.innerText = "Syncing..."; btn.disabled = true;
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-            closeModal(); fetchLeads();
+            try {
+                await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+                closeModal(); fetchLeads();
+            } catch (e) {
+                alert("Update failed. Check connection.");
+                btn.innerText = "Log Visit"; btn.disabled = false;
+            }
         }
     </script>
 </body>
