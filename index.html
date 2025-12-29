@@ -11,38 +11,51 @@
         .data-label { font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .data-value { font-size: 12px; font-weight: 600; color: #1e293b; }
         .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        #save-btn:disabled { background-color: #cbd5e1; cursor: not-allowed; opacity: 0.7; }
+        
+        /* Sticky Search Header */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: rgba(248, 250, 252, 0.9);
+            backdrop-filter: blur(8px);
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
 
-    <header class="bg-white p-5 shadow-sm flex justify-between items-center border-b border-slate-100 sticky top-0 z-10">
+    <header class="bg-white p-5 shadow-sm flex justify-between items-center border-b border-slate-100 relative z-50">
         <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-8 w-auto">
         <div class="text-right">
             <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase tracking-widest"></div>
-            <button onclick="logout()" class="text-[8px] text-slate-400 font-bold uppercase">Switch Agent</button>
+            <button onclick="logout()" class="text-[8px] text-slate-400 font-bold uppercase">Logout</button>
         </div>
     </header>
 
-    <div class="max-w-xl mx-auto px-4 mt-8">
-        <div class="relative max-w-md mx-auto mb-8">
-            <input type="text" id="search" oninput="handleSearch()" placeholder="Search targets..." class="w-full p-5 pl-12 rounded-2xl border-none shadow-lg outline-none bg-white text-md">
+    <div class="sticky-header px-4 pt-6 pb-4">
+        <div class="relative max-w-md mx-auto">
+            <input type="text" id="search" oninput="handleSearch()" placeholder="Search Target 50..." class="w-full p-5 pl-12 rounded-2xl border-none shadow-lg outline-none bg-white text-md ring-1 ring-slate-100">
             <div class="absolute left-4 top-5 text-slate-300">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg>
             </div>
         </div>
-        
-        <div id="lead-list" class="space-y-4 max-w-md mx-auto">
-            <div class="py-20 text-center text-slate-300 font-bold uppercase text-[10px] animate-pulse">Syncing...</div>
+    </div>
+
+    <div class="max-w-xl mx-auto px-4">
+        <div id="lead-list" class="space-y-4 max-w-md mx-auto mt-2">
+            <div class="py-20 text-center text-slate-300 font-bold uppercase text-[10px] animate-pulse">Connecting to Database...</div>
         </div>
     </div>
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center">
         <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
             <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800"></h2>
+            
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Current Status</label>
+                        <label class="data-label ml-1">Status</label>
                         <select id="status-input" class="w-full p-4 bg-slate-50 rounded-xl text-sm border-none outline-none">
                             <option value="Active">Active</option>
                             <option value="Closed/Lost">Closed/Lost</option>
@@ -50,150 +63,21 @@
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Water Solution</label>
-                        <select id="sol-input" class="w-full p-4 bg-slate-50 rounded-xl text-sm border-none outline-none">
-                            <option value="None">None</option>
-                            <option value="Bottled (5G)">Bottled (5G)</option>
-                            <option value="Competitor Filter">Competitor Filter</option>
-                            <option value="Tap Only">Tap Only</option>
-                        </select>
+                        <label class="data-label ml-1">Gatekeeper (Col C)</label>
+                        <input type="text" id="gk-input" placeholder="Name" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="data-label ml-1">1st Touch (Col K)</label>
+                        <input type="datetime-local" id="ft-date-input" class="w-full p-4 bg-slate-50 rounded-xl border-none text-[12px] outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="data-label ml-1">Follow Up (Col L)</label>
+                        <input type="datetime-local" id="fu-date-input" class="w-full p-4 bg-slate-50 rounded-xl border-none text-[12px] outline-none">
                     </div>
                 </div>
                 
                 <div class="space-y-1">
                     <label class="data-label ml-1">Purchasing Dept Info (Col I)</label>
-                    <input type="text" id="purchasing-input" placeholder="Contact details" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
-                </div>
-
-                <div class="space-y-1">
-                    <label class="data-label ml-1">Gatekeeper Name (Col C)</label>
-                    <input type="text" id="gk-input" placeholder="Who did you speak with?" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
-                </div>
-
-                <div class="space-y-1">
-                    <label class="data-label ml-1">Visit Notes (Col P)</label>
-                    <textarea id="note-input" placeholder="Notes will be saved with today's date..." class="w-full h-32 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none"></textarea>
-                </div>
-                
-                <div class="flex gap-3 pt-2">
-                    <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400">Cancel</button>
-                    <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Log Visit</button>
-                </div>
-                <p class="text-[9px] text-center text-slate-300 font-bold uppercase tracking-widest pt-2 italic">Logging this will auto-update Visit Dates</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="login-screen" class="hidden fixed inset-0 bg-slate-50 z-[100] flex items-center justify-center p-6">
-        <div class="max-w-sm w-full bg-white p-10 rounded-[3rem] shadow-2xl text-center">
-            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="mx-auto mb-10 h-12 w-auto">
-            <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full p-5 rounded-2xl border border-slate-100 bg-slate-50 text-center mb-4 outline-none">
-            <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-bold rounded-2xl uppercase tracking-widest text-xs">Access Dashboard</button>
-        </div>
-    </div>
-
-    <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6Tp9M-4BMpSUdCYhnfmOnoh4xL1MJjEl4e9mxggr3Imz7nDDxig0aRWOsNMFF0rM/exec";
-        let allLeads = [];
-        let currentAgent = localStorage.getItem('agentName') || "";
-        let selectedLead = "";
-
-        window.onload = () => { if (!currentAgent) { document.getElementById('login-screen').classList.remove('hidden'); } else { showApp(); } };
-        function login() { const val = document.getElementById('agent-id-input').value.trim(); if (val) { currentAgent = val; localStorage.setItem('agentName', val); showApp(); } }
-        function logout() { localStorage.removeItem('agentName'); location.reload(); }
-        
-        function showApp() { 
-            document.getElementById('login-screen').classList.add('hidden'); 
-            document.getElementById('agent-display').innerText = `AGENT: ${currentAgent.toUpperCase()}`; 
-            fetchLeads(); 
-        }
-
-        async function fetchLeads() {
-            try {
-                const response = await fetch(SCRIPT_URL);
-                const data = await response.json();
-                allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
-                renderLeads(allLeads);
-            } catch (e) { document.getElementById('lead-list').innerHTML = `<div class="py-20 text-center text-red-500 font-bold uppercase text-[10px]">Error loading data</div>`; }
-        }
-
-        function renderLeads(leads) {
-            const list = document.getElementById('lead-list');
-            if(leads.length === 0) {
-                list.innerHTML = `<div class="py-20 text-center"><p class="text-slate-400 font-bold uppercase text-[10px]">No leads assigned to ${currentAgent}</p></div>`;
-                return;
-            }
-            list.innerHTML = leads.map(l => {
-                const fullNotes = l['Notes'] || "";
-                const lastNote = fullNotes.split('\n')[0] || "No previous history";
-
-                return `
-                <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-100">
-                    <div class="mb-4">
-                        <h3 class="font-black text-lg text-slate-800 leading-tight mb-1">${l['Lead Name']}</h3>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${l['Address'] || ''}</p>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-50">
-                        <div>
-                            <p class="data-label">Decision Maker</p>
-                            <p class="data-value">${l['Contact Person'] || '---'}</p>
-                        </div>
-                        <div>
-                            <p class="data-label">Gatekeeper</p>
-                            <p class="data-value">${l['Gatekeeper Name'] || '---'}</p>
-                        </div>
-                    </div>
-
-                    <div class="mb-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100/50">
-                        <p class="data-label text-blue-400 mb-1">Previous Note</p>
-                        <p class="text-[11px] text-slate-600 italic line-clamp-2">${lastNote}</p>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 mb-6">
-                        <div class="bg-slate-50 p-2 rounded-xl text-center">
-                            <p class="data-label">1st Touch</p>
-                            <p class="text-[10px] font-bold text-slate-700">${l['First Touch Date'] || '---'}</p>
-                        </div>
-                        <div class="bg-slate-50 p-2 rounded-xl text-center">
-                            <p class="data-label">Follow Up</p>
-                            <p class="text-[10px] font-bold text-orange-600">${l['Follow Up Date'] || '---'}</p>
-                        </div>
-                    </div>
-
-                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl tracking-widest shadow-xl active:scale-95 transition-all">Update Visit</button>
-                </div>
-            `}).join('');
-        }
-
-        function openModal(name) { 
-            selectedLead = name; 
-            document.getElementById('modal-title').innerText = name; 
-            document.getElementById('modal').classList.remove('hidden'); 
-            document.body.style.overflow = 'hidden';
-        }
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
-        function handleSearch() { const q = document.getElementById('search').value.toLowerCase(); renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(q))); }
-
-        async function submitUpdate() {
-            const btn = document.getElementById('save-btn');
-            const payload = { 
-                leadName: selectedLead, 
-                gatekeeper: document.getElementById('gk-input').value, 
-                solution: document.getElementById('sol-input').value, 
-                purchasing: document.getElementById('purchasing-input').value,
-                status: document.getElementById('status-input').value, 
-                notes: document.getElementById('note-input').value 
-            };
-            btn.innerText = "Syncing...";
-            btn.disabled = true;
-            try {
-                await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-                closeModal(); fetchLeads();
-            } catch(e) { alert("Error updating sheet."); }
-            btn.innerText = "Log Visit";
-            btn.disabled = false;
-        }
-    </script>
-</body>
-</html>
