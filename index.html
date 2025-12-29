@@ -24,7 +24,7 @@
 
     <div class="max-w-xl mx-auto px-4 mt-8">
         <div class="relative max-w-md mx-auto mb-8">
-            <input type="text" id="search" oninput="handleSearch()" placeholder="Search Target 50..." class="w-full p-5 pl-12 rounded-2xl border-none shadow-lg outline-none bg-white text-md">
+            <input type="text" id="search" oninput="handleSearch()" placeholder="Search targets..." class="w-full p-5 pl-12 rounded-2xl border-none shadow-lg outline-none bg-white text-md">
             <div class="absolute left-4 top-5 text-slate-300">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg>
             </div>
@@ -37,21 +37,20 @@
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center">
         <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
-            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800 leading-tight"></h2>
+            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800"></h2>
             <div class="space-y-4">
-                
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Current Status</label>
-                        <select id="status-input" class="w-full p-4 bg-slate-50 rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="data-label ml-1">Status</label>
+                        <select id="status-input" class="w-full p-4 bg-slate-50 rounded-xl text-sm border-none outline-none">
                             <option value="Active">Active</option>
                             <option value="Closed/Lost">Closed/Lost</option>
                             <option value="Closed/Won">Closed/Won</option>
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Current Solution</label>
-                        <select id="sol-input" class="w-full p-4 bg-slate-50 rounded-xl text-sm border-none outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="data-label ml-1">Water Solution</label>
+                        <select id="sol-input" class="w-full p-4 bg-slate-50 rounded-xl text-sm border-none outline-none">
                             <option value="None">None</option>
                             <option value="Bottled (5G)">Bottled (5G)</option>
                             <option value="Competitor Filter">Competitor Filter</option>
@@ -62,17 +61,17 @@
                 
                 <div class="space-y-1">
                     <label class="data-label ml-1">Purchasing Dept Info (Col I)</label>
-                    <input type="text" id="purchasing-input" placeholder="Name, Phone, or Notes" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
+                    <input type="text" id="purchasing-input" placeholder="Enter purchasing contact/details" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
                 </div>
 
                 <div class="space-y-1">
                     <label class="data-label ml-1">Gatekeeper Name</label>
-                    <input type="text" id="gk-input" placeholder="Who did you meet?" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
+                    <input type="text" id="gk-input" placeholder="Who did you meet with?" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
                 </div>
 
                 <div class="space-y-1">
-                    <label class="data-label ml-1">Visit Notes</label>
-                    <textarea id="note-input" placeholder="What happened during the visit?" class="w-full h-32 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none"></textarea>
+                    <label class="data-label ml-1">Visit Notes (Col P)</label>
+                    <textarea id="note-input" placeholder="What happened today?" class="w-full h-32 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none"></textarea>
                 </div>
                 
                 <div class="flex gap-3 pt-2">
@@ -111,27 +110,28 @@
             try {
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
+                // Targets Agent name in Column Q
                 allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
                 renderLeads(allLeads);
-            } catch (e) { alert("Error connecting to database."); }
+            } catch (e) { document.getElementById('lead-list').innerHTML = `<div class="py-20 text-center text-red-500 font-bold uppercase text-[10px]">Error: Deployment setting must be "Anyone"</div>`; }
         }
 
         function renderLeads(leads) {
             const list = document.getElementById('lead-list');
             if(leads.length === 0) {
-                list.innerHTML = `<div class="py-20 text-center"><p class="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No leads assigned in Column Q</p></div>`;
+                list.innerHTML = `<div class="py-20 text-center"><p class="text-slate-400 font-bold uppercase text-[10px]">No leads assigned to you</p></div>`;
                 return;
             }
             list.innerHTML = leads.map(l => `
                 <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-100">
                     <div class="mb-4">
                         <h3 class="font-black text-lg text-slate-800 leading-tight mb-1">${l['Lead Name']}</h3>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${l['Address'] || 'No Address Listed'}</p>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${l['Address'] || ''}</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4 mb-4 pt-4 border-t border-slate-50">
+                    <div class="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-50">
                         <div>
-                            <p class="data-label">Decision Maker (DM)</p>
+                            <p class="data-label">Decision Maker</p>
                             <p class="data-value">${l['Contact Person'] || '---'}</p>
                         </div>
                         <div>
@@ -140,22 +140,18 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-2 mb-6">
-                        <div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
-                            <p class="data-label">Current Sol</p>
-                            <p class="text-[10px] font-bold text-blue-600 truncate">${l['Current Solution'] || 'None'}</p>
-                        </div>
-                        <div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+                    <div class="grid grid-cols-2 gap-2 mb-6">
+                        <div class="bg-slate-50 p-2 rounded-xl text-center">
                             <p class="data-label">1st Touch</p>
-                            <p class="text-[10px] font-bold text-slate-600">${l['First Touch Date'] || '---'}</p>
+                            <p class="text-[10px] font-bold text-slate-700">${l['First Touch Date'] || '---'}</p>
                         </div>
-                        <div class="bg-slate-50 p-2 rounded-xl text-center border border-slate-100">
+                        <div class="bg-slate-50 p-2 rounded-xl text-center">
                             <p class="data-label">Follow Up</p>
-                            <p class="text-[10px] font-bold text-orange-500">${l['Follow Up Date'] || '---'}</p>
+                            <p class="text-[10px] font-bold text-orange-600">${l['Follow up 1'] || '---'}</p>
                         </div>
                     </div>
 
-                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl tracking-widest shadow-lg active:bg-blue-600 transition-all">Update Lead</button>
+                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl tracking-widest active:scale-95 transition-all">Update Lead</button>
                 </div>
             `).join('');
         }
@@ -166,14 +162,8 @@
             document.getElementById('modal').classList.remove('hidden'); 
             document.body.style.overflow = 'hidden';
         }
-        function closeModal() { 
-            document.getElementById('modal').classList.add('hidden'); 
-            document.body.style.overflow = 'auto';
-        }
-        function handleSearch() { 
-            const q = document.getElementById('search').value.toLowerCase(); 
-            renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(q))); 
-        }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); document.body.style.overflow = 'auto'; }
+        function handleSearch() { const q = document.getElementById('search').value.toLowerCase(); renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(q))); }
 
         async function submitUpdate() {
             const btn = document.getElementById('save-btn');
@@ -189,9 +179,8 @@
             btn.disabled = true;
             try {
                 await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-                closeModal(); 
-                fetchLeads();
-            } catch(e) { alert("Error saving visit data."); }
+                closeModal(); fetchLeads();
+            } catch(e) { alert("Error saving. Please check your internet connection."); }
             btn.innerText = "Log Visit";
             btn.disabled = false;
         }
