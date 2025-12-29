@@ -29,10 +29,11 @@
             <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 w-auto mb-2" alt="Logo">
             <p class="text-[10px] font-black text-slate-400 tracking-widest uppercase">Target Manager</p>
         </div>
-        <nav class="space-y-1 flex-1">
-            <button onclick="setView('all')" class="w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 bg-blue-50 text-blue-600">Active Leads</button>
-            <button onclick="setView('trials')" class="w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 text-slate-600">Trials</button>
-            <button onclick="setView('won')" class="w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 text-slate-600">Closed Won</button>
+        <nav id="nav-links" class="space-y-1 flex-1">
+            <button onclick="setView('all')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 bg-blue-50 text-blue-600">Active Leads</button>
+            <button onclick="setView('trials')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 text-slate-600">Trials</button>
+            <button onclick="setView('won')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 text-slate-600">Closed Won</button>
+            <button onclick="setView('lost')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 text-slate-600">Closed Lost</button>
         </nav>
         <button onclick="logout()" class="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest text-left">Logout Agent</button>
     </div>
@@ -89,6 +90,7 @@
                             <option value="Ready for Trial">Ready for Trial</option>
                             <option value="Trial Installed">Trial Installed</option>
                             <option value="Closed/Won">Closed/Won</option>
+                            <option value="Closed/Lost">Closed/Lost</option>
                         </select>
                     </div>
                     <div class="space-y-1">
@@ -149,7 +151,25 @@
         }
 
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('sidebar-open'); document.getElementById('sidebar-overlay').classList.toggle('hidden'); }
-        function setView(view) { currentFilter = view; toggleMenu(); renderLeads(); }
+        
+        function setView(view) { 
+            currentFilter = view; 
+            toggleMenu(); 
+            
+            // UI Update for sidebar active state
+            const items = document.querySelectorAll('.nav-item');
+            items.forEach(item => {
+                item.classList.remove('bg-blue-50', 'text-blue-600');
+                item.classList.add('text-slate-600');
+            });
+            
+            const activeMap = { 'all': 0, 'trials': 1, 'won': 2, 'lost': 3 };
+            const activeBtn = items[activeMap[view]];
+            activeBtn.classList.add('bg-blue-50', 'text-blue-600');
+            activeBtn.classList.remove('text-slate-600');
+
+            renderLeads(); 
+        }
 
         function openProfile(name) {
             const l = allLeads.find(lead => lead['Lead Name'] === name);
@@ -188,16 +208,24 @@
 
         function renderLeads() {
             let filtered = [...allLeads];
-            if (currentFilter === 'all') filtered = filtered.filter(l => !l['Status']?.includes('Closed') && !l['Status']?.includes('Trial'));
-            else if (currentFilter === 'trials') filtered = filtered.filter(l => l['Status']?.includes('Trial'));
-            else if (currentFilter === 'won') filtered = filtered.filter(l => l['Status']?.includes('Won'));
+            
+            // Filter Logic per view
+            if (currentFilter === 'all') {
+                filtered = filtered.filter(l => !l['Status']?.includes('Closed') && !l['Status']?.includes('Trial'));
+            } else if (currentFilter === 'trials') {
+                filtered = filtered.filter(l => l['Status']?.includes('Trial'));
+            } else if (currentFilter === 'won') {
+                filtered = filtered.filter(l => l['Status']?.includes('Won'));
+            } else if (currentFilter === 'lost') {
+                filtered = filtered.filter(l => l['Status']?.includes('Lost'));
+            }
 
             const q = document.getElementById('search').value.toLowerCase();
             if (q) filtered = filtered.filter(l => l['Lead Name'].toLowerCase().includes(q));
 
             const container = document.getElementById('lead-list');
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found.</p>`;
+                container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found in this view.</p>`;
                 return;
             }
 
