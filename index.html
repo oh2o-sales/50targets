@@ -81,3 +81,141 @@
                 
                 <div class="space-y-1">
                     <label class="data-label ml-1">Purchasing Dept Info (Col I)</label>
+                    <input type="text" id="purchasing-input" placeholder="Contact/Dept details" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="data-label ml-1 text-blue-600 font-black">Notes Required to Save Visit *</label>
+                    <textarea id="note-input" oninput="validateForm()" placeholder="What did you discuss? Who did you meet?" class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none ring-1 ring-slate-100 focus:ring-blue-500"></textarea>
+                </div>
+                
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400">Cancel</button>
+                    <button id="save-btn" disabled onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-screen" class="hidden fixed inset-0 bg-slate-50 z-[100] flex items-center justify-center p-6">
+        <div class="max-w-sm w-full bg-white p-10 rounded-[3rem] shadow-2xl text-center">
+            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="mx-auto mb-10 h-12 w-auto">
+            <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full p-5 rounded-2xl border border-slate-100 bg-slate-50 text-center mb-4 outline-none">
+            <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-bold rounded-2xl uppercase tracking-widest text-xs">Access Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6Tp9M-4BMpSUdCYhnfmOnoh4xL1MJjEl4e9mxggr3Imz7nDDxig0aRWOsNMFF0rM/exec";
+        let allLeads = [];
+        let currentAgent = localStorage.getItem('agentName') || "";
+        let selectedLead = "";
+
+        window.onload = () => { if (!currentAgent) { document.getElementById('login-screen').classList.remove('hidden'); } else { showApp(); } };
+        function login() { const val = document.getElementById('agent-id-input').value.trim(); if (val) { currentAgent = val; localStorage.setItem('agentName', val); showApp(); } }
+        function logout() { localStorage.removeItem('agentName'); location.reload(); }
+        
+        function showApp() { 
+            document.getElementById('login-screen').classList.add('hidden'); 
+            document.getElementById('agent-display').innerText = currentAgent.toUpperCase(); 
+            fetchLeads(); 
+        }
+
+        async function fetchLeads() {
+            try {
+                const response = await fetch(SCRIPT_URL);
+                const data = await response.json();
+                // Filter by Agent name in Column Q
+                allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
+                renderLeads(allLeads);
+            } catch (e) { document.getElementById('lead-list').innerHTML = `<div class="py-20 text-center text-red-500 font-bold uppercase text-[10px]">Database connection error</div>`; }
+        }
+
+        function validateForm() {
+            const notes = document.getElementById('note-input').value.trim();
+            document.getElementById('save-btn').disabled = (notes.length < 3);
+        }
+
+        function renderLeads(leads) {
+            const list = document.getElementById('lead-list');
+            if(leads.length === 0) {
+                list.innerHTML = `<div class="py-20 text-center"><p class="text-slate-400 font-bold uppercase text-[10px]">No targets found</p></div>`;
+                return;
+            }
+            list.innerHTML = leads.map(l => {
+                const lastNote = (l['Notes'] || "").split('\n')[0] || "No previous history";
+                return `
+                <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-100">
+                    <div class="mb-4">
+                        <h3 class="font-black text-lg text-slate-800 leading-tight mb-1">${l['Lead Name']}</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${l['Address'] || ''}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-50">
+                        <div><p class="data-label">Gatekeeper</p><p class="data-value">${l['Gatekeeper Name'] || '---'}</p></div>
+                        <div><p class="data-label">Decision Maker</p><p class="data-value">${l['Contact Person'] || '---'}</p></div>
+                    </div>
+
+                    <div class="mb-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100/30">
+                        <p class="data-label text-blue-400 mb-1">Previous Note</p>
+                        <p class="text-[11px] text-slate-600 italic line-clamp-2">${lastNote}</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 mb-6 text-center">
+                        <div class="bg-slate-50 p-2 rounded-xl">
+                            <p class="data-label">1st Touch</p>
+                            <p class="text-[10px] font-bold text-slate-700">${l['Date Created'] || '---'}</p>
+                        </div>
+                        <div class="bg-slate-50 p-2 rounded-xl">
+                            <p class="data-label">Follow Up</p>
+                            <p class="text-[10px] font-bold text-orange-600">${l['First Touch'] || '---'}</p>
+                        </div>
+                    </div>
+
+                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl tracking-widest active:scale-95 transition-all">Update Visit</button>
+                </div>
+            `}).join('');
+        }
+
+        function openModal(name) { 
+            selectedLead = name; 
+            document.getElementById('modal-title').innerText = name; 
+            document.getElementById('modal').classList.remove('hidden'); 
+            document.getElementById('note-input').value = "";
+            document.body.style.overflow = 'hidden';
+            validateForm();
+        }
+
+        function closeModal() { 
+            document.getElementById('modal').classList.add('hidden'); 
+            document.body.style.overflow = 'auto'; 
+        }
+
+        function handleSearch() { const q = document.getElementById('search').value.toLowerCase(); renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(q))); }
+
+        async function submitUpdate() {
+            const btn = document.getElementById('save-btn');
+            const ft = document.getElementById('ft-date-input').value;
+            const fu = document.getElementById('fu-date-input').value;
+            
+            const payload = { 
+                leadName: selectedLead, 
+                gatekeeper: document.getElementById('gk-input').value, 
+                purchasing: document.getElementById('purchasing-input').value,
+                status: document.getElementById('status-input').value, 
+                notes: document.getElementById('note-input').value,
+                firstTouchDate: ft ? ft.replace("T", " ") : "",
+                followUpDate: fu ? fu.replace("T", " ") : ""
+            };
+
+            btn.innerText = "Saving...";
+            btn.disabled = true;
+            try {
+                await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+                closeModal(); fetchLeads();
+            } catch(e) { alert("Error saving to database."); }
+            btn.innerText = "Save Changes";
+        }
+    </script>
+</body>
+</html>
