@@ -28,7 +28,7 @@
     <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-2xl -translate-x-full p-6 flex flex-col">
         <div class="flex flex-col items-center mb-10">
             <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 w-auto mb-2" alt="Logo">
-            <p class="text-[10px] font-black text-slate-400 tracking-widest uppercase">Target Manager</p>
+            <p class="text-[10px] font-black text-slate-400 tracking-widest uppercase text-center">Target Manager</p>
         </div>
         <nav id="nav-links" class="space-y-1 flex-1">
             <button onclick="setView('all')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 bg-blue-50 text-blue-600">Active Leads</button>
@@ -83,7 +83,7 @@
     </div>
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end justify-center">
-        <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-md max-h-[95vh] overflow-y-auto shadow-2xl">
             <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800"></h2>
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
@@ -107,11 +107,27 @@
                         </select>
                     </div>
                 </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="data-label ml-1">Gatekeeper Name</label>
+                        <input type="text" id="gk-input" placeholder="Name" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="data-label ml-1">Purchasing Dept</label>
+                        <input type="text" id="purch-input" placeholder="Contact/Dept" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <label class="data-label ml-1">Current Solution</label>
+                    <input type="text" id="solution-input" placeholder="What are they using now?" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                </div>
+
                 <div class="space-y-1">
                     <label class="data-label ml-1 text-blue-600 font-black">Visit Notes</label>
-                    <textarea id="note-input" oninput="validateForm()" placeholder="Briefly summarize the visit..." class="w-full h-32 p-4 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    <textarea id="note-input" oninput="validateForm()" placeholder="Briefly summarize the visit..." class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
-                <div class="flex gap-3 pt-4">
+                <div class="flex gap-3 pt-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400 action-btn">Cancel</button>
                     <button id="save-btn" disabled onclick="submitUpdate()" class="flex-1 py-4 bg-slate-900 text-white font-bold rounded-xl shadow-lg action-btn">Log Visit</button>
                 </div>
@@ -121,7 +137,7 @@
 
     <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
         <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-28 w-auto mb-4" alt="Logo">
-        <h1 class="text-xl font-black text-slate-900 mb-12 uppercase tracking-widest">Top 50 Targets Portal</h1>
+        <h1 class="text-xl font-black text-slate-900 mb-12 uppercase tracking-widest text-center">Top 50 Targets Portal</h1>
         <div class="w-full max-w-xs bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-xl text-center">
             <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full p-5 rounded-2xl bg-slate-50 border-none text-center mb-4 outline-none font-bold">
             <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase tracking-widest text-xs action-btn">Enter Portal</button>
@@ -156,21 +172,13 @@
         }
 
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('sidebar-open'); document.getElementById('sidebar-overlay').classList.toggle('hidden'); }
-        
-        function toggleSort() {
-            sortByLastUpdated = !sortByLastUpdated;
-            document.getElementById('sort-btn').classList.toggle('sort-active');
-            renderLeads();
-        }
+        function toggleSort() { sortByLastUpdated = !sortByLastUpdated; document.getElementById('sort-btn').classList.toggle('sort-active'); renderLeads(); }
 
         function setView(view) { 
             currentFilter = view; 
             toggleMenu(); 
             const items = document.querySelectorAll('.nav-item');
-            items.forEach(item => {
-                item.classList.remove('bg-blue-50', 'text-blue-600');
-                item.classList.add('text-slate-600');
-            });
+            items.forEach(item => { item.classList.remove('bg-blue-50', 'text-blue-600'); item.classList.add('text-slate-600'); });
             const activeMap = { 'all': 0, 'trials': 1, 'won': 2, 'lost': 3 };
             const activeBtn = items[activeMap[view]];
             activeBtn.classList.add('bg-blue-50', 'text-blue-600');
@@ -181,7 +189,6 @@
         function openProfile(name) {
             const l = allLeads.find(lead => lead['Lead Name'] === name);
             if (!l) return;
-            
             document.getElementById('profile-name').innerText = l['Lead Name'];
             const displayPhone = l['Phone'] || 'No Phone';
             const fullAddr = `${l['Address'] || ''}, ${l['City'] || ''}, ${l['State'] || ''}`.replace(/^, /, '');
@@ -195,6 +202,7 @@
                     <div><p class="profile-label">Gatekeeper</p><p class="profile-value">${l['Gatekeeper Name'] || '---'}</p></div>
                     <div><p class="profile-label">Purchasing</p><p class="profile-value">${l['Purchasing Dept'] || '---'}</p></div>
                 </div>
+                <div><p class="profile-label">Current Solution</p><p class="profile-value">${l['Current Solution'] || '---'}</p></div>
             `;
             
             const noteKeys = ['First Touch Notes', 'Follow up 1 Notes', 'Follow up 2 Notes', 'Follow up 3 Notes'];
@@ -224,30 +232,23 @@
             const q = document.getElementById('search').value.toLowerCase();
             if (q) filtered = filtered.filter(l => l['Lead Name'].toLowerCase().includes(q));
 
-            // SORT LOGIC
             if (sortByLastUpdated) {
                 filtered.sort((a, b) => {
                     const aDates = [cleanDate(a['First Touch']), cleanDate(a['Follow up 1']), cleanDate(a['Follow up 2']), cleanDate(a['Follow up 3'])].filter(d => d !== null);
                     const bDates = [cleanDate(b['First Touch']), cleanDate(b['Follow up 1']), cleanDate(b['Follow up 2']), cleanDate(b['Follow up 3'])].filter(d => d !== null);
                     const aMax = aDates.length > 0 ? Math.max(...aDates) : 0;
                     const bMax = bDates.length > 0 ? Math.max(...bDates) : 0;
-                    return bMax - aMax; // Newest first
+                    return bMax - aMax;
                 });
-            } else {
-                filtered.sort((a, b) => a['Lead Name'].localeCompare(b['Lead Name']));
-            }
+            } else { filtered.sort((a, b) => a['Lead Name'].localeCompare(b['Lead Name'])); }
 
             const container = document.getElementById('lead-list');
-            if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found.</p>`;
-                return;
-            }
+            if (filtered.length === 0) { container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found.</p>`; return; }
 
             container.innerHTML = filtered.map(l => {
                 const dates = [cleanDate(l['First Touch']), cleanDate(l['Follow up 1']), cleanDate(l['Follow up 2']), cleanDate(l['Follow up 3'])].filter(d => d !== null);
                 const lastActivity = dates.length > 0 ? new Date(Math.max(...dates)) : null;
                 const geoAddr = `${l['Address'] || ''}, ${l['City'] || ''}, ${l['State'] || ''}`.trim();
-
                 return `
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                     <div class="flex justify-between items-start mb-4">
@@ -278,6 +279,9 @@
             if (!lead) return;
             document.getElementById('modal-title').innerText = name;
             document.getElementById('status-input').value = lead['Status'] || "Active";
+            document.getElementById('gk-input').value = lead['Gatekeeper Name'] || "";
+            document.getElementById('purch-input').value = lead['Purchasing Dept'] || "";
+            document.getElementById('solution-input').value = lead['Current Solution'] || "";
             document.getElementById('note-input').value = "";
             document.getElementById('modal').classList.remove('hidden');
             validateForm();
@@ -291,16 +295,16 @@
                 leadName: document.getElementById('modal-title').innerText,
                 status: document.getElementById('status-input').value,
                 visitType: document.getElementById('visit-type').value,
-                notes: document.getElementById('note-input').value 
+                notes: document.getElementById('note-input').value,
+                gatekeeperName: document.getElementById('gk-input').value,
+                purchasingDept: document.getElementById('purch-input').value,
+                currentSolution: document.getElementById('solution-input').value
             };
             btn.innerText = "Syncing..."; btn.disabled = true;
             try {
                 await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
                 closeModal(); fetchLeads();
-            } catch (e) {
-                alert("Update failed. Check connection.");
-                btn.innerText = "Log Visit"; btn.disabled = false;
-            }
+            } catch (e) { alert("Update failed. Check connection."); btn.innerText = "Log Visit"; btn.disabled = false; }
         }
     </script>
 </body>
