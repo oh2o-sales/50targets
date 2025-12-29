@@ -18,31 +18,53 @@
         .data-value { font-size: 12px; font-weight: 600; color: #1e293b; }
         #save-btn:disabled { background-color: #cbd5e1; cursor: not-allowed; opacity: 0.7; }
         .sticky-header { position: sticky; top: 0; z-index: 40; background: rgba(248, 250, 252, 0.9); backdrop-filter: blur(8px); }
-        .card-btn { transition: all 0.2s ease; }
-        .card-btn:active { transform: scale(0.96); }
+        
+        /* Sidebar Animation */
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-open { transform: translateX(0) !important; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
 
+    <div id="sidebar-overlay" onclick="toggleMenu()" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]"></div>
+    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white z-[70] shadow-2xl -translate-x-full p-6 flex flex-col">
+        <div class="flex justify-between items-center mb-10">
+            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-6 w-auto">
+            <button onclick="toggleMenu()" class="text-slate-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5"></path></svg>
+            </button>
+        </div>
+        <nav class="space-y-2 flex-1">
+            <button onclick="setView('all')" class="w-full text-left p-4 rounded-xl font-bold text-slate-700 bg-slate-50 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h16M4 18h16" stroke-width="2"></path></svg>
+                All Targets
+            </button>
+            <button onclick="setView('won')" class="w-full text-left p-4 rounded-xl font-bold text-slate-700 hover:bg-green-50 hover:text-green-600 transition-colors flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2"></path></svg>
+                Won Deals
+            </button>
+            <button onclick="openExternalMaps()" class="w-full text-left p-4 rounded-xl font-bold text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors flex items-center gap-3">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7l5-2.5 5.553 2.776a1 1 0 01.447.894v10.764a1 1 0 01-1.447.894L15 17l-6 3z" stroke-width="2"></path></svg>
+                Open Full Map
+            </button>
+        </nav>
+        <button onclick="logout()" class="p-4 text-xs font-black uppercase text-slate-300 tracking-widest text-left">Logout Agent</button>
+    </div>
+
     <header class="bg-white p-5 shadow-sm flex justify-between items-center border-b border-slate-100 relative z-50">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-8 w-auto">
-        <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase tracking-widest"></div>
+        <button onclick="toggleMenu()" class="p-2 -ml-2 text-slate-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2.5"></path></svg>
+        </button>
+        <div id="view-title" class="text-[10px] text-blue-600 font-black uppercase tracking-widest">ALL TARGETS</div>
+        <div id="agent-display" class="text-[10px] text-slate-400 font-bold uppercase"></div>
     </header>
 
     <div class="sticky-header px-4 pt-6 pb-4">
-        <div class="relative max-w-md mx-auto flex gap-2">
-            <div class="relative flex-1">
-                <input type="text" id="search" oninput="handleSearch()" placeholder="Search Name or Street..." class="w-full p-4 pl-11 pr-10 rounded-2xl border-none shadow-lg outline-none bg-white text-md ring-1 ring-slate-100">
-                <div class="absolute left-4 top-4 text-slate-300">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg>
-                </div>
-                <button onclick="clearSearch()" id="clear-btn" class="hidden absolute right-3 top-3 bg-slate-100 p-1.5 rounded-lg text-slate-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="3"></path></svg>
-                </button>
+        <div class="relative max-w-md mx-auto">
+            <input type="text" id="search" oninput="handleSearch()" placeholder="Search Name or Street..." class="w-full p-4 pl-11 rounded-2xl border-none shadow-lg outline-none bg-white text-md ring-1 ring-slate-100">
+            <div class="absolute left-4 top-4 text-slate-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg>
             </div>
-            <button onclick="toggleSort()" class="bg-white p-4 rounded-2xl shadow-lg ring-1 ring-slate-100 text-slate-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" stroke-width="2"></path></svg>
-            </button>
         </div>
     </div>
 
@@ -50,10 +72,9 @@
         <div id="lead-list" class="space-y-4 max-w-md mx-auto mt-2"></div>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center">
+    <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end justify-center">
         <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
             <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800"></h2>
-            
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
@@ -74,23 +95,20 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Gatekeeper (Col C)</label>
+                        <label class="data-label ml-1">Gatekeeper</label>
                         <input type="text" id="gk-input" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
                     </div>
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Purchasing (Col I)</label>
+                        <label class="data-label ml-1">Purchasing Info</label>
                         <input type="text" id="purchasing-input" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
                     </div>
                 </div>
-
                 <div class="space-y-1">
                     <label class="data-label ml-1 text-blue-600 font-black">Visit Notes (Required * )</label>
-                    <textarea id="note-input" oninput="validateForm()" placeholder="Details of the visit..." class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none ring-1 ring-slate-100 focus:ring-blue-500"></textarea>
+                    <textarea id="note-input" oninput="validateForm()" placeholder="Briefly describe the outcome..." class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none ring-1 ring-slate-100 focus:ring-blue-500"></textarea>
                 </div>
-                
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400">Cancel</button>
                     <button id="save-btn" disabled onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Log Visit</button>
@@ -99,9 +117,9 @@
         </div>
     </div>
 
-    <div id="login-screen" class="hidden fixed inset-0 bg-slate-50 z-[100] flex items-center justify-center p-6">
+    <div id="login-screen" class="hidden fixed inset-0 bg-slate-50 z-[200] flex items-center justify-center p-6">
         <div class="max-w-sm w-full bg-white p-10 rounded-[3rem] shadow-2xl text-center">
-            <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full p-5 rounded-2xl border border-slate-100 bg-slate-50 text-center mb-4 outline-none">
+            <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full p-5 rounded-2xl border-none bg-slate-50 text-center mb-4 outline-none">
             <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-bold rounded-2xl uppercase tracking-widest text-xs">Login</button>
         </div>
     </div>
@@ -110,83 +128,71 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6Tp9M-4BMpSUdCYhnfmOnoh4xL1MJjEl4e9mxggr3Imz7nDDxig0aRWOsNMFF0rM/exec";
         let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
-        let isSortedByStreet = false;
-
-        function formatVisitDate(dateStr) {
-            if (!dateStr || dateStr === "---" || dateStr === "") return "---";
-            const date = new Date(dateStr);
-            if (isNaN(date.getTime())) return dateStr;
-            return date.toLocaleString('en-US', { month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
-        }
+        let currentFilter = "all";
 
         window.onload = () => { if (!currentAgent) { document.getElementById('login-screen').classList.remove('hidden'); } else { showApp(); } };
         function login() { const val = document.getElementById('agent-id-input').value.trim(); if (val) { currentAgent = val; localStorage.setItem('agentName', val); showApp(); } }
+        function logout() { localStorage.removeItem('agentName'); location.reload(); }
         
         function showApp() { 
             document.getElementById('login-screen').classList.add('hidden'); 
-            document.getElementById('agent-display').innerText = currentAgent.toUpperCase(); 
+            document.getElementById('agent-display').innerText = currentAgent; 
             fetchLeads(); 
         }
 
         async function fetchLeads() {
-            try {
-                const response = await fetch(SCRIPT_URL);
-                const data = await response.json();
-                allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
-                renderLeads(allLeads);
-            } catch (e) { console.error("Database Error"); }
+            const response = await fetch(SCRIPT_URL);
+            const data = await response.json();
+            allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
+            renderLeads();
         }
 
-        function renderLeads(leads) {
-            let listToRender = [...leads];
-            if (isSortedByStreet) {
-                listToRender.sort((a, b) => (a['Address'] || "").localeCompare(b['Address'] || ""));
-            }
+        function toggleMenu() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('sidebar-overlay');
+            sb.classList.toggle('sidebar-open');
+            ov.classList.toggle('hidden');
+        }
 
-            document.getElementById('lead-list').innerHTML = listToRender.map(l => {
-                const lastFollow = l['Follow up 3'] || l['Follow up 2'] || l['Follow up 1'] || "---";
-                const phone = l['Phone Number'] || "";
-                const address = l['Address'] || "";
-                
-                return `
+        function setView(view) {
+            currentFilter = view;
+            document.getElementById('view-title').innerText = view === 'all' ? 'ALL TARGETS' : 'WON DEALS';
+            toggleMenu();
+            renderLeads();
+        }
+
+        function openExternalMaps() {
+            // This opens Google Maps with the address query for the first lead as an example
+            const firstAddress = allLeads[0]?.Address;
+            if (firstAddress) window.open(`https://www.google.com/maps/search/${encodeURIComponent(firstAddress)}`, '_blank');
+        }
+
+        function renderLeads() {
+            let filtered = [...allLeads];
+            if (currentFilter === 'won') filtered = filtered.filter(l => l['Agent']?.toString().includes("Won"));
+            
+            const q = document.getElementById('search').value.toLowerCase();
+            if (q) filtered = filtered.filter(l => l['Lead Name'].toLowerCase().includes(q) || (l['Address'] || "").toLowerCase().includes(q));
+
+            document.getElementById('lead-list').innerHTML = filtered.map(l => `
                 <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-100">
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex-1">
                             <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase">${address}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">${l['Address'] || ''}</p>
                         </div>
                         <div class="flex gap-2">
-                            ${address ? `<a href="https://maps.google.com/?q=${encodeURIComponent(address)}" class="bg-blue-50 p-3 rounded-full text-blue-600 card-btn">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"></path><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-width="2"></path></svg>
-                            </a>` : ''}
-                            ${phone ? `<a href="tel:${phone}" class="bg-green-50 p-3 rounded-full text-green-600 card-btn">
+                            <a href="https://maps.apple.com/?q=${encodeURIComponent(l['Address'])}" class="bg-blue-50 p-3 rounded-full text-blue-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"></path></svg>
+                            </a>
+                            <a href="tel:${l['Phone Number'] || ''}" class="bg-green-50 p-3 rounded-full text-green-600">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
-                            </a>` : ''}
+                            </a>
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-2 gap-4 mb-4 pb-4 border-b border-slate-50">
-                        <div><p class="data-label">Gatekeeper</p><p class="data-value">${l['Gatekeeper Name'] || '---'}</p></div>
-                        <div><p class="data-label">Contact</p><p class="data-value">${l['Contact Person'] || '---'}</p></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 mb-6">
-                        <div class="bg-slate-50 p-2 rounded-xl text-center">
-                            <p class="data-label">First Touch</p>
-                            <p class="text-[10px] font-bold">${formatVisitDate(l['First Touch'])}</p>
-                        </div>
-                        <div class="bg-slate-50 p-2 rounded-xl text-center">
-                            <p class="data-label">Last Follow</p>
-                            <p class="text-[10px] font-bold text-orange-600">${formatVisitDate(lastFollow)}</p>
-                        </div>
-                    </div>
-                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl card-btn shadow-lg">Update Visit</button>
+                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl active:scale-95 transition-all">Update Visit</button>
                 </div>
-            `}).join('');
-        }
-
-        function toggleSort() {
-            isSortedByStreet = !isSortedByStreet;
-            renderLeads(allLeads);
+            `).join('');
         }
 
         function openModal(name) {
@@ -196,18 +202,12 @@
             document.getElementById('purchasing-input').value = lead['Purchasing Dept'] || "";
             document.getElementById('note-input').value = "";
             document.getElementById('modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
             validateForm();
         }
 
-        function closeModal() { 
-            document.getElementById('modal').classList.add('hidden'); 
-            document.body.style.overflow = 'auto';
-        }
-
-        function validateForm() {
-            document.getElementById('save-btn').disabled = (document.getElementById('note-input').value.trim().length < 3);
-        }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        function handleSearch() { renderLeads(); }
+        function validateForm() { document.getElementById('save-btn').disabled = (document.getElementById('note-input').value.trim().length < 3); }
 
         async function submitUpdate() {
             const btn = document.getElementById('save-btn');
@@ -219,24 +219,9 @@
                 visitType: document.getElementById('visit-type').value,
                 notes: document.getElementById('note-input').value 
             };
-            btn.innerText = "Syncing...";
-            btn.disabled = true;
+            btn.innerText = "Syncing..."; btn.disabled = true;
             await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
             closeModal(); fetchLeads();
-        }
-
-        function handleSearch() {
-            const q = document.getElementById('search').value.toLowerCase();
-            document.getElementById('clear-btn').classList.toggle('hidden', q.length === 0);
-            renderLeads(allLeads.filter(l => 
-                l['Lead Name'].toLowerCase().includes(q) || 
-                (l['Address'] || "").toLowerCase().includes(q)
-            ));
-        }
-
-        function clearSearch() {
-            document.getElementById('search').value = "";
-            handleSearch();
         }
     </script>
 </body>
