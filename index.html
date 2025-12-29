@@ -17,7 +17,6 @@
             background-attachment: fixed;
         }
         
-        /* Glassmorphism for login */
         .glass-card {
             background: rgba(255, 255, 255, 0.4);
             backdrop-filter: blur(12px);
@@ -36,22 +35,18 @@
 
     <div id="login-screen" class="fixed inset-0 landing-bg z-[100] flex items-center justify-center p-6 text-center">
         <div class="max-w-sm w-full">
-            
             <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" 
                  alt="Logo" 
                  class="mx-auto mb-12 h-24 w-auto object-contain">
             
             <div class="glass-card p-10 rounded-[3rem] shadow-2xl shadow-blue-200/50">
                 <p class="text-blue-900 mb-8 text-sm font-bold uppercase tracking-widest opacity-70">Sales Force Portal</p>
-                
                 <input type="text" id="agent-id-input" placeholder="Enter Agent Name" 
                     class="w-full p-5 rounded-2xl border-none bg-white/60 text-slate-800 placeholder-slate-400 mb-4 outline-none focus:ring-2 focus:ring-blue-400 text-center text-lg transition-all shadow-inner">
-                
                 <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-lg shadow-blue-400/30 uppercase tracking-widest text-xs hover:bg-blue-500 active:scale-95 transition-all">
                     Access Dashboard
                 </button>
             </div>
-            
             <p class="mt-10 text-blue-900/40 text-[10px] uppercase tracking-widest font-bold">Internal Use Only</p>
         </div>
     </div>
@@ -81,24 +76,33 @@
         </main>
     </div>
 
-    <div id="history-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center">
-        <div class="bg-white rounded-t-[3rem] p-10 w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl">
-            <div class="flex justify-between items-center mb-8 border-b border-slate-50 pb-4">
-                <h2 class="text-xl font-black text-slate-900">Visit History</h2>
-                <button onclick="closeHistory()" class="bg-slate-100 h-10 w-10 rounded-full flex items-center justify-center text-slate-400 text-2xl">&times;</button>
-            </div>
-            <div id="history-content" class="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed pb-10"></div>
-        </div>
-    </div>
-
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center">
-        <div class="bg-white rounded-t-[3rem] p-10 w-full max-w-sm shadow-2xl">
-            <h2 id="modal-title" class="text-2xl font-black text-slate-900 mb-6 truncate"></h2>
-            <textarea id="note-input" placeholder="Notes from today's visit..." 
-                class="w-full h-44 p-6 bg-slate-50 border-none rounded-[2rem] focus:ring-2 focus:ring-blue-400 outline-none mb-8 text-slate-800 shadow-inner"></textarea>
+        <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-sm shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h2 id="modal-title" class="text-xl font-black text-slate-900 mb-6 truncate"></h2>
+            
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Gatekeeper Name</label>
+                    <input type="text" id="gk-input" placeholder="Who did you meet at the front?" 
+                        class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none">
+                </div>
+                
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Purchasing Dept Info</label>
+                    <input type="text" id="pur-input" placeholder="Emails, direct lines, or notes..." 
+                        class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Visit Notes</label>
+                    <textarea id="note-input" placeholder="What happened during this visit?" 
+                        class="w-full h-32 p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none shadow-inner"></textarea>
+                </div>
+            </div>
+
             <div class="flex space-x-3">
-                <button onclick="closeModal()" class="flex-1 py-5 font-bold text-slate-400 bg-slate-100 rounded-2xl">Cancel</button>
-                <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-5 font-bold text-white bg-blue-600 rounded-2xl shadow-lg shadow-blue-200">Save Visit</button>
+                <button onclick="closeModal()" class="flex-1 py-4 font-bold text-slate-400 bg-slate-100 rounded-2xl">Cancel</button>
+                <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 font-bold text-white bg-blue-600 rounded-2xl shadow-lg">Save Visit</button>
             </div>
         </div>
     </div>
@@ -107,6 +111,7 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx86qPsDOUZq9FJTL2cnecEqVi0pSeOXXSukhYcb_HUVjEwkepO6rjK72TjhBcA2euR/exec";
         let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
+        let selectedLead = "";
 
         window.onload = () => { if (currentAgent) showApp(); };
         function login() { const val = document.getElementById('agent-id-input').value.trim(); if (val) { currentAgent = val; localStorage.setItem('agentName', val); showApp(); } }
@@ -125,31 +130,23 @@
         function renderLeads(leads) {
             const container = document.getElementById('lead-list');
             container.innerHTML = leads.map(lead => {
-                const phone = lead['Phone'] || "";
                 const stages = [{n:"1st", d:lead['First Touch']}, {n:"FU1", d:lead['Follow up 1']}, {n:"FU2", d:lead['Follow up 2']}, {n:"FU3", d:lead['Follow up 3']}];
 
                 return `
                 <div class="bg-white rounded-[2.5rem] shadow-xl shadow-blue-100/30 border border-white p-8">
-                    <div class="flex justify-between items-start mb-6">
-                        <div class="max-w-[80%]">
-                            <h3 class="font-black text-2xl text-slate-900 leading-tight">${lead['Lead Name']}</h3>
-                            <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest mt-1">Status: ${lead['Date Created'] || '---'}</p>
-                        </div>
-                        <button onclick="showHistory(\`${lead['Notes'] || 'No history.'}\`)" class="h-10 w-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-400 active:scale-90 transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </button>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-6 mb-8 text-[11px] border-t border-slate-50 pt-6">
-                        <div><p class="text-slate-400 font-bold uppercase mb-2 text-[9px]">Decision Maker</p><p class="font-black text-slate-800 text-sm">${lead['Contact Person'] || '---'}</p></div>
-                        <div><p class="text-slate-400 font-bold uppercase mb-2 text-[9px]">Gatekeeper</p><p class="font-black text-slate-800 text-sm">${lead['Gatekeeper Name'] || '---'}</p></div>
+                    <h3 class="font-black text-2xl text-slate-900 leading-tight">${lead['Lead Name']}</h3>
+                    <p class="text-[10px] text-blue-500 font-bold uppercase mt-1 mb-4">${lead['Address'] || ''}, ${lead['City'] || ''}</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6 text-[11px] border-t border-slate-50 pt-4">
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Decision Maker</p><p class="font-bold text-slate-800">${lead['Contact Person'] || '---'}</p></div>
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Gatekeeper</p><p class="font-bold text-slate-800">${lead['Gatekeeper Name'] || '---'}</p></div>
                     </div>
 
                     <div class="bg-blue-50/40 p-5 rounded-[1.5rem] mb-6">
                         <div class="flex justify-between items-center relative">
                             ${stages.map((s, i) => `
                                 <div class="text-center relative z-10">
-                                    <div class="mx-auto stage-dot ${s.d ? 'bg-blue-600 shadow-lg shadow-blue-200' : 'bg-white border-2 border-blue-100'}"></div>
+                                    <div class="mx-auto stage-dot ${s.d ? 'bg-blue-600 shadow-lg' : 'bg-white border-2 border-blue-100'}"></div>
                                     <p class="text-[8px] mt-2 font-black ${s.d ? 'text-blue-600' : 'text-blue-200'}">${s.n}</p>
                                 </div>
                                 ${i < 3 ? '<div class="h-[2px] flex-1 bg-blue-100 mx-2 mb-4"></div>' : ''}
@@ -157,30 +154,45 @@
                         </div>
                     </div>
 
-                    <p class="text-[11px] text-slate-400 italic mb-8 line-clamp-2">Latest: ${lead['Notes'] ? lead['Notes'].split('\n')[0] : 'No notes.'}</p>
-
-                    <div class="flex space-x-3">
-                        ${phone ? `<a href="tel:${phone}" class="flex-1 py-4 bg-blue-50 text-blue-600 font-black rounded-2xl flex items-center justify-center text-[10px] uppercase tracking-widest">Call</a>` : ''}
-                        <button onclick="openModal('${lead['Lead Name'].replace(/'/g, "\\'")}')" class="flex-[2] py-4 bg-slate-900 text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl active:scale-95 transition-all">Update Visit</button>
-                    </div>
+                    <button onclick="openModal('${lead['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl text-[10px] uppercase shadow-xl active:scale-95 transition-all">Update Visit</button>
                 </div>
             `}).join('');
         }
 
-        function showHistory(text) { document.getElementById('history-content').innerText = text; document.getElementById('history-modal').classList.remove('hidden'); }
-        function closeHistory() { document.getElementById('history-modal').classList.add('hidden'); }
-        function handleSearch() { const query = document.getElementById('search').value.toLowerCase(); renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(query))); }
-        let selectedLead = "";
-        function openModal(name) { selectedLead = name; document.getElementById('modal-title').innerText = name; document.getElementById('modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('note-input').value = ""; }
+        function openModal(name) { 
+            selectedLead = name; 
+            document.getElementById('modal-title').innerText = name; 
+            document.getElementById('modal').classList.remove('hidden'); 
+        }
+
+        function closeModal() { 
+            document.getElementById('modal').classList.add('hidden'); 
+            document.getElementById('note-input').value = "";
+            document.getElementById('gk-input').value = "";
+            document.getElementById('pur-input').value = "";
+        }
+
+        function handleSearch() { 
+            const query = document.getElementById('search').value.toLowerCase(); 
+            renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(query))); 
+        }
 
         async function submitUpdate() {
             const note = document.getElementById('note-input').value.trim();
-            if(!note) return;
+            if(!note) { alert("Please enter visit notes"); return; }
+            
+            const payload = {
+                leadName: selectedLead,
+                gatekeeper: document.getElementById('gk-input').value.trim(),
+                purchasing: document.getElementById('pur-input').value.trim(),
+                notes: note
+            };
+
             document.getElementById('save-btn').innerText = "Saving...";
-            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify({ leadName: selectedLead, notes: note }) });
+            await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
             closeModal();
             fetchLeads();
+            document.getElementById('save-btn').innerText = "Save Visit";
         }
     </script>
 </body>
