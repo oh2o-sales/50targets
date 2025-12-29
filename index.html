@@ -19,6 +19,7 @@
         .note-card { background: #f1f5f9; padding: 14px; border-radius: 16px; border-left: 4px solid #3b82f6; margin-bottom: 10px; }
         .action-btn { transition: all 0.2s; }
         .action-btn:active { transform: scale(0.95); opacity: 0.8; }
+        .sort-active { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
     </style>
 </head>
 <body class="pb-20">
@@ -54,6 +55,9 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg>
                 </div>
             </div>
+            <button onclick="toggleSort()" id="sort-btn" class="bg-white px-4 rounded-2xl border border-slate-200 shadow-sm text-slate-400 action-btn">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </button>
         </div>
     </div>
 
@@ -129,6 +133,7 @@
         let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
         let currentFilter = "all";
+        let sortByLastUpdated = false;
 
         function cleanDate(d) { if (!d || d === "" || d === "---") return null; const date = new Date(d); return isNaN(date) ? null : date; }
         function formatDateUI(date) { if (!date) return "---"; return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }); }
@@ -152,6 +157,12 @@
 
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('sidebar-open'); document.getElementById('sidebar-overlay').classList.toggle('hidden'); }
         
+        function toggleSort() {
+            sortByLastUpdated = !sortByLastUpdated;
+            document.getElementById('sort-btn').classList.toggle('sort-active');
+            renderLeads();
+        }
+
         function setView(view) { 
             currentFilter = view; 
             toggleMenu(); 
@@ -213,6 +224,19 @@
             const q = document.getElementById('search').value.toLowerCase();
             if (q) filtered = filtered.filter(l => l['Lead Name'].toLowerCase().includes(q));
 
+            // SORT LOGIC
+            if (sortByLastUpdated) {
+                filtered.sort((a, b) => {
+                    const aDates = [cleanDate(a['First Touch']), cleanDate(a['Follow up 1']), cleanDate(a['Follow up 2']), cleanDate(a['Follow up 3'])].filter(d => d !== null);
+                    const bDates = [cleanDate(b['First Touch']), cleanDate(b['Follow up 1']), cleanDate(b['Follow up 2']), cleanDate(b['Follow up 3'])].filter(d => d !== null);
+                    const aMax = aDates.length > 0 ? Math.max(...aDates) : 0;
+                    const bMax = bDates.length > 0 ? Math.max(...bDates) : 0;
+                    return bMax - aMax; // Newest first
+                });
+            } else {
+                filtered.sort((a, b) => a['Lead Name'].localeCompare(b['Lead Name']));
+            }
+
             const container = document.getElementById('lead-list');
             if (filtered.length === 0) {
                 container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found.</p>`;
@@ -222,8 +246,6 @@
             container.innerHTML = filtered.map(l => {
                 const dates = [cleanDate(l['First Touch']), cleanDate(l['Follow up 1']), cleanDate(l['Follow up 2']), cleanDate(l['Follow up 3'])].filter(d => d !== null);
                 const lastActivity = dates.length > 0 ? new Date(Math.max(...dates)) : null;
-                
-                // RESTORED FIX: Combine Address, City, State for accurate GPS
                 const geoAddr = `${l['Address'] || ''}, ${l['City'] || ''}, ${l['State'] || ''}`.trim();
 
                 return `
