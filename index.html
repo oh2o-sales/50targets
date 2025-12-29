@@ -84,7 +84,7 @@
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end justify-center">
         <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-md max-h-[95vh] overflow-y-auto shadow-2xl">
-            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800"></h2>
+            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800 leading-tight"></h2>
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
@@ -111,11 +111,11 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
                         <label class="data-label ml-1">Gatekeeper Name</label>
-                        <input type="text" id="gk-input" placeholder="Name" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                        <input type="text" id="gk-input" placeholder="Enter Name" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
                     </div>
                     <div class="space-y-1">
                         <label class="data-label ml-1">Purchasing Dept</label>
-                        <input type="text" id="purch-input" placeholder="Contact/Dept" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                        <input type="text" id="purch-input" placeholder="Enter Contact" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
                     </div>
                 </div>
                 <div class="space-y-1">
@@ -195,9 +195,7 @@
 
             document.getElementById('profile-details').innerHTML = `
                 <p class="profile-label">Main Contact Details</p>
-                <p class="profile-value">${displayPhone}</p>
-                <p class="profile-label">Full Address</p>
-                <p class="profile-value">${fullAddr || '---'}</p>
+                <p class="profile-value">${displayPhone} • ${l['Address'] || '---'}</p>
                 <div class="grid grid-cols-2 gap-4">
                     <div><p class="profile-label">Gatekeeper</p><p class="profile-value">${l['Gatekeeper Name'] || '---'}</p></div>
                     <div><p class="profile-label">Purchasing</p><p class="profile-value">${l['Purchasing Dept'] || '---'}</p></div>
@@ -214,7 +212,7 @@
                     notesHtml += `<div class="note-card"><p class="text-[9px] font-black text-blue-500 uppercase mb-1">${dateKeys[index]} (${d})</p><p class="text-sm text-slate-700 font-medium">"${l[key]}"</p></div>`;
                 }
             });
-            document.getElementById('notes-history').innerHTML = notesHtml || '<p class="text-center text-slate-300 py-4 font-bold italic text-sm">No notes recorded.</p>';
+            document.getElementById('notes-history').innerHTML = notesHtml || '<p class="text-center text-slate-300 py-4 font-bold italic text-sm">No notes recorded yet.</p>';
             document.getElementById('profile-modal').classList.remove('hidden');
         }
 
