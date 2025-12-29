@@ -6,10 +6,10 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Target 50">
+    <meta name="apple-mobile-web-app-title" content="H2O Elite">
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png">
     
-    <title>Target 50 Portal</title>
+    <title>H2O Elite 50 Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         ::-webkit-scrollbar { width: 0px; background: transparent; }
@@ -21,15 +21,16 @@
         #sidebar { transition: transform 0.3s ease-in-out; }
         .sidebar-open { transform: translateX(0) !important; }
         .nav-item { width: 100%; text-align: left; padding: 1rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem; display: flex; align-items: center; gap: 0.75rem; transition: all 0.2s; }
+        .hero-gradient { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
 
     <div id="sidebar-overlay" onclick="toggleMenu()" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]"></div>
     <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white z-[70] shadow-2xl -translate-x-full p-6 flex flex-col">
-        <div class="flex justify-between items-center mb-8">
-            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-6 w-auto">
-            <button onclick="toggleMenu()" class="text-slate-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5"></path></svg></button>
+        <div class="flex flex-col items-center mb-10">
+            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-12 w-auto mb-2">
+            <p class="text-[9px] font-black text-blue-600 tracking-[0.2em] uppercase">Elite 50</p>
         </div>
         
         <nav class="space-y-1 flex-1">
@@ -44,22 +45,24 @@
 
     <header class="bg-white p-5 shadow-sm flex justify-between items-center border-b border-slate-100 relative z-50">
         <button onclick="toggleMenu()" class="p-2 -ml-2 text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2.5"></path></svg></button>
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-6 w-auto">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-8 w-auto">
         <div id="agent-display" class="text-[10px] text-slate-400 font-bold uppercase"></div>
     </header>
 
     <div id="main-content">
-        <div class="sticky-header px-4 pt-6 pb-4">
-            <div id="view-indicator" class="max-w-md mx-auto mb-2 text-[9px] font-black text-blue-600 uppercase tracking-widest">Active Leads</div>
-            <div class="relative max-w-md mx-auto">
-                <input type="text" id="search" oninput="handleSearch()" placeholder="Search Name or Street..." class="w-full p-4 pl-11 rounded-2xl border-none shadow-lg outline-none bg-white text-md ring-1 ring-slate-100">
+        <div class="sticky-header px-4 pt-6 pb-4 text-center">
+            <h1 class="text-xl font-black text-slate-800 tracking-tight">The H2O Elite 50</h1>
+            <p id="view-indicator" class="text-[9px] font-black text-blue-600 uppercase tracking-widest mt-1">Active Leads</p>
+            
+            <div class="relative max-w-md mx-auto mt-4">
+                <input type="text" id="search" oninput="handleSearch()" placeholder="Search targets..." class="w-full p-4 pl-11 rounded-2xl border-none shadow-lg outline-none bg-white text-md ring-1 ring-slate-100">
                 <div class="absolute left-4 top-4 text-slate-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg></div>
             </div>
         </div>
 
         <div class="max-w-xl mx-auto px-4">
-            <div id="lead-list" class="space-y-4 max-w-md mx-auto mt-2">
-                <div class="text-center py-20 text-slate-300 font-bold text-sm">Syncing database...</div>
+            <div id="lead-list" class="space-y-4 max-w-md mx-auto mt-2 pb-10">
+                <div class="text-center py-20 text-slate-300 font-bold text-sm italic">Accessing H2O database...</div>
             </div>
         </div>
     </div>
@@ -101,7 +104,7 @@
                 </div>
                 <div class="space-y-1">
                     <label class="data-label ml-1 text-blue-600 font-black">Visit Notes (Required * )</label>
-                    <textarea id="note-input" oninput="validateForm()" placeholder="Briefly describe the outcome..." class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none ring-1 ring-slate-100 focus:ring-blue-500"></textarea>
+                    <textarea id="note-input" oninput="validateForm()" placeholder="Outcome of visit..." class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none ring-1 ring-slate-100 focus:ring-blue-500"></textarea>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400">Cancel</button>
@@ -111,12 +114,16 @@
         </div>
     </div>
 
-    <div id="login-screen" class="hidden fixed inset-0 bg-slate-50 z-[200] flex flex-col items-center justify-center p-6">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-10 w-auto mb-10">
-        <div class="max-w-sm w-full bg-white p-10 rounded-[3rem] shadow-2xl text-center">
-            <h3 class="font-black text-slate-800 mb-6 uppercase tracking-widest text-xs">Portal Access</h3>
-            <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full p-5 rounded-2xl border-none bg-slate-50 text-center mb-4 outline-none ring-1 ring-slate-100 focus:ring-blue-500">
-            <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-bold rounded-2xl uppercase tracking-widest text-xs shadow-lg active:scale-95 transition-transform">Login</button>
+    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
+        <div class="mb-12 text-center">
+            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-20 w-auto mx-auto mb-4 drop-shadow-sm">
+            <h1 class="text-3xl font-black text-slate-900 tracking-tighter">ELITE 50</h1>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">Official H2O Sales Portal</p>
+        </div>
+        
+        <div class="w-full max-w-sm bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full p-5 rounded-2xl border-none bg-white text-center mb-4 outline-none shadow-inner text-lg font-semibold">
+            <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl uppercase tracking-widest text-sm shadow-xl active:scale-95 transition-all">Enter Portal</button>
         </div>
     </div>
 
@@ -126,12 +133,10 @@
         let currentAgent = localStorage.getItem('agentName') || "";
         let currentFilter = "all";
 
-        // Fix date formatting for the UI
         function cleanDate(d) {
             if (!d || d === "" || d === "---") return "---";
             const date = new Date(d);
-            if (isNaN(date)) return d;
-            return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
+            return isNaN(date) ? d : date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
         }
 
         window.onload = () => { if (!currentAgent) { document.getElementById('login-screen').classList.remove('hidden'); } else { showApp(); } };
@@ -156,7 +161,7 @@
                 allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
                 renderLeads();
             } catch (e) {
-                document.getElementById('lead-list').innerHTML = `<div class="text-center py-20 text-red-400 font-bold">Error connecting to database. Please refresh.</div>`;
+                document.getElementById('lead-list').innerHTML = `<div class="text-center py-20 text-red-400 font-bold">Connection Refused. Refresh App.</div>`;
             }
         }
 
@@ -167,7 +172,7 @@
 
         function setView(view) {
             currentFilter = view;
-            const titles = { all: 'ACTIVE LEADS', trials: 'TRIALS', won: 'CLOSED WON', lost: 'CLOSED LOST' };
+            const titles = { all: 'Active Leads', trials: 'Trials', won: 'Closed Won', lost: 'Closed Lost' };
             document.getElementById('view-indicator').innerText = titles[view];
             toggleMenu();
             renderLeads();
@@ -175,22 +180,16 @@
 
         function renderLeads() {
             let filtered = [...allLeads];
-            
-            if (currentFilter === 'all') {
-                filtered = filtered.filter(l => !l['Status']?.includes('Closed') && !l['Status']?.includes('Trial'));
-            } else if (currentFilter === 'trials') {
-                filtered = filtered.filter(l => l['Status']?.includes('Trial'));
-            } else if (currentFilter === 'won') {
-                filtered = filtered.filter(l => l['Status']?.includes('Won'));
-            } else if (currentFilter === 'lost') {
-                filtered = filtered.filter(l => l['Status']?.includes('Lost'));
-            }
+            if (currentFilter === 'all') filtered = filtered.filter(l => !l['Status']?.includes('Closed') && !l['Status']?.includes('Trial'));
+            else if (currentFilter === 'trials') filtered = filtered.filter(l => l['Status']?.includes('Trial'));
+            else if (currentFilter === 'won') filtered = filtered.filter(l => l['Status']?.includes('Won'));
+            else if (currentFilter === 'lost') filtered = filtered.filter(l => l['Status']?.includes('Lost'));
 
             const q = document.getElementById('search').value.toLowerCase();
             if (q) filtered = filtered.filter(l => l['Lead Name'].toLowerCase().includes(q) || (l['Address'] || "").toLowerCase().includes(q));
 
             if (filtered.length === 0) {
-                document.getElementById('lead-list').innerHTML = `<div class="text-center py-20 text-slate-300 font-bold">No leads found in this view.</div>`;
+                document.getElementById('lead-list').innerHTML = `<div class="text-center py-20 text-slate-300 font-bold italic">No targets found.</div>`;
                 return;
             }
 
@@ -204,25 +203,25 @@
                             <p class="text-[10px] text-slate-400 font-bold uppercase">${l['Address'] || ''}</p>
                         </div>
                         <div class="flex gap-2">
-                            <a href="https://maps.apple.com/?q=${encodeURIComponent(l['Address'])}" class="bg-blue-50 p-3 rounded-full text-blue-600">
+                            <a href="https://maps.apple.com/?q=${encodeURIComponent(l['Address'])}" class="bg-blue-50 p-3 rounded-full text-blue-600 active:bg-blue-100">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"></path></svg>
                             </a>
-                            <a href="tel:${l['Phone Number'] || ''}" class="bg-green-50 p-3 rounded-full text-green-600">
+                            <a href="tel:${l['Phone Number'] || ''}" class="bg-green-50 p-3 rounded-full text-green-600 active:bg-green-100">
                                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
                             </a>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-2 mb-6">
-                        <div class="bg-slate-50 p-2 rounded-xl text-center">
+                    <div class="grid grid-cols-2 gap-2 mb-6 text-center">
+                        <div class="bg-slate-50 p-2 rounded-xl">
                             <p class="data-label">1st Touch</p>
                             <p class="text-[10px] font-bold">${cleanDate(l['First Touch'])}</p>
                         </div>
-                        <div class="bg-slate-50 p-2 rounded-xl text-center">
+                        <div class="bg-slate-50 p-2 rounded-xl">
                             <p class="data-label">Follow Up</p>
                             <p class="text-[10px] font-bold text-orange-600">${cleanDate(lastFollow)}</p>
                         </div>
                     </div>
-                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl active:scale-95 transition-all">Update Visit</button>
+                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl shadow-lg active:scale-95 transition-all">Update Target</button>
                 </div>
             `}).join('');
         }
