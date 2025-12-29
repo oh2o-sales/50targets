@@ -19,7 +19,7 @@
         <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-8 w-auto">
         <div class="text-right">
             <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase tracking-widest"></div>
-            <button onclick="logout()" class="text-[8px] text-slate-400 font-bold uppercase">Logout / Switch Agent</button>
+            <button onclick="logout()" class="text-[8px] text-slate-400 font-bold uppercase">Switch Agent</button>
         </div>
     </header>
 
@@ -32,7 +32,7 @@
         </div>
         
         <div id="lead-list" class="space-y-4 max-w-md mx-auto">
-            <div class="py-20 text-center text-slate-300 font-bold uppercase text-[10px] tracking-widest animate-pulse">Syncing Database...</div>
+            <div class="py-20 text-center text-slate-300 font-bold uppercase text-[10px] animate-pulse">Syncing...</div>
         </div>
     </div>
 
@@ -42,7 +42,7 @@
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Status</label>
+                        <label class="data-label ml-1">Current Status</label>
                         <select id="status-input" class="w-full p-4 bg-slate-50 rounded-xl text-sm border-none outline-none">
                             <option value="Active">Active</option>
                             <option value="Closed/Lost">Closed/Lost</option>
@@ -62,23 +62,24 @@
                 
                 <div class="space-y-1">
                     <label class="data-label ml-1">Purchasing Dept Info (Col I)</label>
-                    <input type="text" id="purchasing-input" placeholder="Enter purchasing contact/details" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
+                    <input type="text" id="purchasing-input" placeholder="Contact details" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
                 </div>
 
                 <div class="space-y-1">
-                    <label class="data-label ml-1">Gatekeeper Name</label>
-                    <input type="text" id="gk-input" placeholder="Who did you meet with?" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
+                    <label class="data-label ml-1">Gatekeeper Name (Col C)</label>
+                    <input type="text" id="gk-input" placeholder="Who did you speak with?" class="w-full p-4 bg-slate-50 rounded-xl border-none text-sm outline-none">
                 </div>
 
                 <div class="space-y-1">
-                    <label class="data-label ml-1">New Visit Notes (Col P)</label>
-                    <textarea id="note-input" placeholder="What happened today?" class="w-full h-32 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none"></textarea>
+                    <label class="data-label ml-1">Visit Notes (Col P)</label>
+                    <textarea id="note-input" placeholder="Notes will be saved with today's date..." class="w-full h-32 p-4 bg-slate-50 rounded-xl border-none text-sm outline-none"></textarea>
                 </div>
                 
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400">Cancel</button>
-                    <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-all">Log Visit</button>
+                    <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-bold rounded-xl shadow-lg">Log Visit</button>
                 </div>
+                <p class="text-[9px] text-center text-slate-300 font-bold uppercase tracking-widest pt-2 italic">Logging this will auto-update Visit Dates</p>
             </div>
         </div>
     </div>
@@ -113,19 +114,18 @@
                 const data = await response.json();
                 allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
                 renderLeads(allLeads);
-            } catch (e) { document.getElementById('lead-list').innerHTML = `<div class="py-20 text-center text-red-500 font-bold uppercase text-[10px]">Error loading data. Ensure deployment is set to 'Anyone'</div>`; }
+            } catch (e) { document.getElementById('lead-list').innerHTML = `<div class="py-20 text-center text-red-500 font-bold uppercase text-[10px]">Error loading data</div>`; }
         }
 
         function renderLeads(leads) {
             const list = document.getElementById('lead-list');
             if(leads.length === 0) {
-                list.innerHTML = `<div class="py-20 text-center"><p class="text-slate-400 font-bold uppercase text-[10px]">No leads assigned to you</p></div>`;
+                list.innerHTML = `<div class="py-20 text-center"><p class="text-slate-400 font-bold uppercase text-[10px]">No leads assigned to ${currentAgent}</p></div>`;
                 return;
             }
             list.innerHTML = leads.map(l => {
-                // Extract only the most recent note from Column P
                 const fullNotes = l['Notes'] || "";
-                const lastNote = fullNotes.split('\n')[0] || "No previous notes";
+                const lastNote = fullNotes.split('\n')[0] || "No previous history";
 
                 return `
                 <div class="bg-white p-6 rounded-3xl shadow-md border border-slate-100">
@@ -140,13 +140,13 @@
                             <p class="data-value">${l['Contact Person'] || '---'}</p>
                         </div>
                         <div>
-                            <p class="data-label">Purchasing Dept</p>
-                            <p class="data-value">${l['Purchasing Dept Info'] || '---'}</p>
+                            <p class="data-label">Gatekeeper</p>
+                            <p class="data-value">${l['Gatekeeper Name'] || '---'}</p>
                         </div>
                     </div>
 
                     <div class="mb-4 p-3 bg-blue-50/50 rounded-xl border border-blue-100/50">
-                        <p class="data-label text-blue-400 mb-1">Last Visit Note</p>
+                        <p class="data-label text-blue-400 mb-1">Previous Note</p>
                         <p class="text-[11px] text-slate-600 italic line-clamp-2">${lastNote}</p>
                     </div>
 
@@ -157,11 +157,11 @@
                         </div>
                         <div class="bg-slate-50 p-2 rounded-xl text-center">
                             <p class="data-label">Follow Up</p>
-                            <p class="text-[10px] font-bold text-orange-600">${l['Follow up 1'] || '---'}</p>
+                            <p class="text-[10px] font-bold text-orange-600">${l['Follow Up Date'] || '---'}</p>
                         </div>
                     </div>
 
-                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl tracking-widest active:scale-95 transition-all">Update Lead</button>
+                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl tracking-widest shadow-xl active:scale-95 transition-all">Update Visit</button>
                 </div>
             `}).join('');
         }
@@ -178,4 +178,22 @@
         async function submitUpdate() {
             const btn = document.getElementById('save-btn');
             const payload = { 
-                leadName: selectedLead,
+                leadName: selectedLead, 
+                gatekeeper: document.getElementById('gk-input').value, 
+                solution: document.getElementById('sol-input').value, 
+                purchasing: document.getElementById('purchasing-input').value,
+                status: document.getElementById('status-input').value, 
+                notes: document.getElementById('note-input').value 
+            };
+            btn.innerText = "Syncing...";
+            btn.disabled = true;
+            try {
+                await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+                closeModal(); fetchLeads();
+            } catch(e) { alert("Error updating sheet."); }
+            btn.innerText = "Log Visit";
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
