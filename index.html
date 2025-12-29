@@ -8,69 +8,36 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
         ::-webkit-scrollbar { width: 0px; background: transparent; }
-        input, textarea { font-size: 16px !important; }
+        input, textarea, select { font-size: 16px !important; }
         .stage-dot { width: 10px; height: 10px; border-radius: 50%; }
-        
-        /* Calming Water-Themed Background */
-        .landing-bg {
-            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
-            background-attachment: fixed;
-        }
-        
-        .glass-card {
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
-        }
-
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
+        .landing-bg { background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); background-attachment: fixed; }
+        .glass-card { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-20 font-sans text-slate-900">
 
     <div id="login-screen" class="fixed inset-0 landing-bg z-[100] flex items-center justify-center p-6 text-center">
         <div class="max-w-sm w-full">
-            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" 
-                 alt="Logo" 
-                 class="mx-auto mb-12 h-24 w-auto object-contain">
-            
+            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="mx-auto mb-12 h-24 w-auto object-contain">
             <div class="glass-card p-10 rounded-[3rem] shadow-2xl shadow-blue-200/50">
-                <p class="text-blue-900 mb-8 text-sm font-bold uppercase tracking-widest opacity-70">Sales Force Portal</p>
-                <input type="text" id="agent-id-input" placeholder="Enter Agent Name" 
-                    class="w-full p-5 rounded-2xl border-none bg-white/60 text-slate-800 placeholder-slate-400 mb-4 outline-none focus:ring-2 focus:ring-blue-400 text-center text-lg transition-all shadow-inner">
-                <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-lg shadow-blue-400/30 uppercase tracking-widest text-xs hover:bg-blue-500 active:scale-95 transition-all">
-                    Access Dashboard
-                </button>
+                <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full p-5 rounded-2xl border-none bg-white/60 text-slate-800 text-center text-lg shadow-inner outline-none focus:ring-2 focus:ring-blue-400">
+                <button onclick="login()" class="w-full mt-4 py-5 bg-blue-600 text-white font-black rounded-2xl uppercase tracking-widest text-xs shadow-lg">Access Dashboard</button>
             </div>
-            <p class="mt-10 text-blue-900/40 text-[10px] uppercase tracking-widest font-bold">Internal Use Only</p>
         </div>
     </div>
 
     <div id="app-content" class="hidden">
         <header class="bg-white/80 backdrop-blur-md sticky top-0 z-10 p-5 shadow-sm flex justify-between items-center border-b border-blue-100">
-            <div class="flex items-center space-x-3">
-                <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-8 w-auto object-contain">
-                <div>
-                    <p id="agent-display" class="text-[10px] text-blue-500 font-bold uppercase tracking-widest"></p>
-                </div>
-            </div>
-            <button onclick="logout()" class="text-[10px] bg-slate-100 text-slate-500 px-4 py-2 rounded-full font-bold uppercase tracking-widest hover:bg-red-50 hover:text-red-50 transition-all">Logout</button>
+            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-8 w-auto">
+            <p id="agent-display" class="text-[10px] text-blue-500 font-bold uppercase"></p>
         </header>
 
         <main class="max-w-md mx-auto p-4">
             <div class="relative w-full mb-6 flex items-center">
-                <div class="absolute left-5 flex items-center pointer-events-none">
-                    <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                    </svg>
+                <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <input type="text" id="search" oninput="handleSearch()" placeholder="Search Target 50..." 
-                    class="w-full p-5 pl-14 rounded-[2rem] border-none shadow-lg shadow-blue-100/50 focus:ring-2 focus:ring-blue-400 outline-none bg-white">
+                <input type="text" id="search" oninput="handleSearch()" placeholder="Search Target 50..." class="w-full p-5 pl-14 rounded-[2rem] border-none shadow-lg outline-none bg-white">
             </div>
             <div id="lead-list" class="space-y-6"></div>
         </main>
@@ -83,20 +50,28 @@
             <div class="space-y-4 mb-6">
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Gatekeeper Name</label>
-                    <input type="text" id="gk-input" placeholder="Who did you meet at the front?" 
-                        class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none">
+                    <input type="text" id="gk-input" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none">
                 </div>
                 
                 <div>
+                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Current Water Solution</label>
+                    <select id="sol-input" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none appearance-none">
+                        <option value="">Select current setup...</option>
+                        <option value="Bottled Water (5-Gal)">Bottled Water (5-Gal)</option>
+                        <option value="Filter System (Competitor)">Filter System (Competitor)</option>
+                        <option value="Tap Water Only">Tap Water Only</option>
+                        <option value="None">None</option>
+                    </select>
+                </div>
+
+                <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Purchasing Dept Info</label>
-                    <input type="text" id="pur-input" placeholder="Emails, direct lines, or notes..." 
-                        class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none">
+                    <input type="text" id="pur-input" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none">
                 </div>
 
                 <div>
                     <label class="text-[10px] font-bold text-slate-400 uppercase ml-2">Visit Notes</label>
-                    <textarea id="note-input" placeholder="What happened during this visit?" 
-                        class="w-full h-32 p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none shadow-inner"></textarea>
+                    <textarea id="note-input" class="w-full h-32 p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none shadow-inner"></textarea>
                 </div>
             </div>
 
@@ -127,29 +102,45 @@
             } catch (e) { console.error(e); }
         }
 
+        function getLastVisitText(lead) {
+            const dates = [lead['Follow up 3'], lead['Follow up 2'], lead['Follow up 1'], lead['First Touch']].filter(d => d);
+            if (dates.length === 0) return "No visits yet";
+            
+            const lastDate = new Date(dates[0]);
+            const today = new Date();
+            const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 0) return "Visited today";
+            if (diffDays === 1) return "Visited yesterday";
+            return `Visited ${diffDays} days ago`;
+        }
+
         function renderLeads(leads) {
-            const container = document.getElementById('lead-list');
-            container.innerHTML = leads.map(lead => {
+            document.getElementById('lead-list').innerHTML = leads.map(lead => {
                 const stages = [{n:"1st", d:lead['First Touch']}, {n:"FU1", d:lead['Follow up 1']}, {n:"FU2", d:lead['Follow up 2']}, {n:"FU3", d:lead['Follow up 3']}];
+                const lastVisit = getLastVisitText(lead);
 
                 return `
-                <div class="bg-white rounded-[2.5rem] shadow-xl shadow-blue-100/30 border border-white p-8">
-                    <h3 class="font-black text-2xl text-slate-900 leading-tight">${lead['Lead Name']}</h3>
-                    <p class="text-[10px] text-blue-500 font-bold uppercase mt-1 mb-4">${lead['Address'] || ''}, ${lead['City'] || ''}</p>
+                <div class="bg-white rounded-[2.5rem] shadow-xl p-8 mb-6 border border-white">
+                    <div class="flex justify-between items-start mb-1">
+                        <h3 class="font-black text-2xl text-slate-900 leading-tight flex-1">${lead['Lead Name']}</h3>
+                        <span class="text-[9px] font-black px-3 py-1 bg-blue-50 text-blue-600 rounded-full uppercase tracking-tighter">${lastVisit}</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${lead['Address'] || ''}, ${lead['City'] || ''}</p>
                     
                     <div class="grid grid-cols-2 gap-4 mb-6 text-[11px] border-t border-slate-50 pt-4">
                         <div><p class="text-slate-400 font-bold uppercase text-[9px]">Decision Maker</p><p class="font-bold text-slate-800">${lead['Contact Person'] || '---'}</p></div>
-                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Gatekeeper</p><p class="font-bold text-slate-800">${lead['Gatekeeper Name'] || '---'}</p></div>
+                        <div><p class="text-slate-400 font-bold uppercase text-[9px]">Solution</p><p class="font-bold text-slate-800">${lead['Current Solution'] || 'Unknown'}</p></div>
                     </div>
 
-                    <div class="bg-blue-50/40 p-5 rounded-[1.5rem] mb-6">
+                    <div class="bg-blue-50/30 p-5 rounded-[1.5rem] mb-6">
                         <div class="flex justify-between items-center relative">
                             ${stages.map((s, i) => `
                                 <div class="text-center relative z-10">
-                                    <div class="mx-auto stage-dot ${s.d ? 'bg-blue-600 shadow-lg' : 'bg-white border-2 border-blue-100'}"></div>
+                                    <div class="mx-auto stage-dot ${s.d ? 'bg-blue-600 shadow-md' : 'bg-white border-2 border-blue-100'}"></div>
                                     <p class="text-[8px] mt-2 font-black ${s.d ? 'text-blue-600' : 'text-blue-200'}">${s.n}</p>
                                 </div>
-                                ${i < 3 ? '<div class="h-[2px] flex-1 bg-blue-100 mx-2 mb-4"></div>' : ''}
+                                ${i < 3 ? '<div class="h-[2px] flex-1 bg-blue-100 mx-1 mb-4"></div>' : ''}
                             `).join('')}
                         </div>
                     </div>
@@ -159,23 +150,9 @@
             `}).join('');
         }
 
-        function openModal(name) { 
-            selectedLead = name; 
-            document.getElementById('modal-title').innerText = name; 
-            document.getElementById('modal').classList.remove('hidden'); 
-        }
-
-        function closeModal() { 
-            document.getElementById('modal').classList.add('hidden'); 
-            document.getElementById('note-input').value = "";
-            document.getElementById('gk-input').value = "";
-            document.getElementById('pur-input').value = "";
-        }
-
-        function handleSearch() { 
-            const query = document.getElementById('search').value.toLowerCase(); 
-            renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(query))); 
-        }
+        function openModal(name) { selectedLead = name; document.getElementById('modal-title').innerText = name; document.getElementById('modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('note-input').value = ""; document.getElementById('gk-input').value = ""; document.getElementById('pur-input').value = ""; document.getElementById('sol-input').value = ""; }
+        function handleSearch() { const query = document.getElementById('search').value.toLowerCase(); renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(query))); }
 
         async function submitUpdate() {
             const note = document.getElementById('note-input').value.trim();
@@ -183,8 +160,9 @@
             
             const payload = {
                 leadName: selectedLead,
-                gatekeeper: document.getElementById('gk-input').value.trim(),
-                purchasing: document.getElementById('pur-input').value.trim(),
+                gatekeeper: document.getElementById('gk-input').value,
+                purchasing: document.getElementById('pur-input').value,
+                solution: document.getElementById('sol-input').value,
                 notes: note
             };
 
