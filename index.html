@@ -40,26 +40,31 @@
                 </div>
                 <input type="text" id="search" oninput="handleSearch()" placeholder="Search Target 50..." class="w-full p-6 pl-14 rounded-[2.5rem] border-none shadow-xl outline-none bg-white text-lg">
             </div>
-            <div id="lead-list" class="space-y-6"></div>
+            
+            <div id="lead-list" class="space-y-6">
+                </div>
+
+            <button onclick="logout()" class="w-full mt-12 py-4 text-slate-300 font-bold text-[10px] uppercase tracking-widest">Logout / Switch Agent</button>
         </main>
     </div>
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-end justify-center">
         <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-sm shadow-2xl overflow-y-auto max-h-[90vh]">
             <h2 id="modal-title" class="text-xl font-black text-slate-900 mb-6 truncate"></h2>
+            
             <div class="space-y-4 mb-6">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Lead Status</label>
-                        <select id="status-input" class="w-full p-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-400 outline-none text-xs font-bold">
+                        <select id="status-input" class="w-full p-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-400 outline-none appearance-none text-xs font-bold">
                             <option value="Active">Active</option>
                             <option value="Closed/Lost">Closed/Lost</option>
                             <option value="Closed/Won">Closed/Won</option>
                         </select>
                     </div>
                     <div>
-                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Water Solution</label>
-                        <select id="sol-input" class="w-full p-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-400 outline-none text-xs">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Current Water</label>
+                        <select id="sol-input" class="w-full p-3 bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-blue-400 outline-none appearance-none text-xs">
                             <option value="">Select...</option>
                             <option value="Bottled (5G)">Bottled (5G)</option>
                             <option value="Competitor Filter">Competitor Filter</option>
@@ -67,19 +72,23 @@
                         </select>
                     </div>
                 </div>
+
                 <div>
                     <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Gatekeeper Name</label>
                     <input type="text" id="gk-input" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none text-sm">
                 </div>
+                
                 <div>
-                    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Purchasing Info</label>
+                    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Purchasing Dept Info</label>
                     <input type="text" id="pur-input" class="w-full p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none text-sm">
                 </div>
+
                 <div>
                     <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Visit Notes</label>
                     <textarea id="note-input" class="w-full h-24 p-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-blue-400 outline-none text-sm shadow-inner"></textarea>
                 </div>
             </div>
+
             <div class="flex space-x-3">
                 <button onclick="closeModal()" class="flex-1 py-4 font-bold text-slate-400 bg-slate-100 rounded-2xl">Cancel</button>
                 <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 font-bold text-white bg-blue-600 rounded-2xl shadow-lg">Save Visit</button>
@@ -116,13 +125,17 @@
         }
 
         function renderLeads(leads) {
+            if (leads.length === 0) {
+                document.getElementById('lead-list').innerHTML = `<div class="p-10 text-center text-slate-300 font-bold uppercase text-xs tracking-widest">No leads assigned to you yet.</div>`;
+                return;
+            }
             document.getElementById('lead-list').innerHTML = leads.map(lead => {
                 const stages = [{n:"1st", d:lead['First Touch']}, {n:"FU1", d:lead['Follow up 1']}, {n:"FU2", d:lead['Follow up 2']}, {n:"FU3", d:lead['Follow up 3']}];
                 return `
-                <div class="bg-white rounded-[2.5rem] shadow-xl p-8 mb-6 border border-white relative">
+                <div class="bg-white rounded-[2.5rem] shadow-xl p-8 mb-6 border border-white">
                     <div class="flex justify-between items-start mb-1 gap-2">
                         <h3 class="font-black text-xl text-slate-900 leading-tight flex-1">${lead['Lead Name']}</h3>
-                        <span class="text-[8px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase">${getLastVisitText(lead)}</span>
+                        <span class="text-[8px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase whitespace-nowrap">${getLastVisitText(lead)}</span>
                     </div>
                     <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${lead['Address'] || ''}, ${lead['City'] || ''}</p>
                     <div class="grid grid-cols-2 gap-4 mb-6 text-[10px] border-t border-slate-50 pt-4">
@@ -140,32 +153,30 @@
                             `).join('')}
                         </div>
                     </div>
-                    <button onclick="openModal('${lead['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl text-[10px] uppercase shadow-xl">Update Visit</button>
+                    <button onclick="openModal('${lead['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl text-[10px] uppercase shadow-xl active:scale-95 transition-all">Update Visit</button>
                 </div>
             `}).join('');
         }
 
         function openModal(name) { selectedLead = name; document.getElementById('modal-title').innerText = name; document.getElementById('modal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); document.getElementById('note-input').value = ""; document.getElementById('gk-input').value = ""; document.getElementById('pur-input').value = ""; document.getElementById('sol-input').value = ""; document.getElementById('status-input').value = "Active"; }
+        function handleSearch() { const query = document.getElementById('search').value.toLowerCase(); renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(query))); }
 
         async function submitUpdate() {
+            const note = document.getElementById('note-input').value.trim();
+            if(!note) { alert("Please enter visit notes"); return; }
             const payload = {
                 leadName: selectedLead,
                 gatekeeper: document.getElementById('gk-input').value,
                 purchasing: document.getElementById('pur-input').value,
                 solution: document.getElementById('sol-input').value,
                 status: document.getElementById('status-input').value,
-                notes: document.getElementById('note-input').value
+                notes: note
             };
             document.getElementById('save-btn').innerText = "Saving...";
             await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
             closeModal(); fetchLeads();
             document.getElementById('save-btn').innerText = "Save Visit";
-        }
-
-        function handleSearch() {
-            const query = document.getElementById('search').value.toLowerCase();
-            renderLeads(allLeads.filter(l => l['Lead Name'].toLowerCase().includes(query)));
         }
     </script>
 </body>
