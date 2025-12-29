@@ -155,19 +155,15 @@
         function setView(view) { 
             currentFilter = view; 
             toggleMenu(); 
-            
-            // UI Update for sidebar active state
             const items = document.querySelectorAll('.nav-item');
             items.forEach(item => {
                 item.classList.remove('bg-blue-50', 'text-blue-600');
                 item.classList.add('text-slate-600');
             });
-            
             const activeMap = { 'all': 0, 'trials': 1, 'won': 2, 'lost': 3 };
             const activeBtn = items[activeMap[view]];
             activeBtn.classList.add('bg-blue-50', 'text-blue-600');
             activeBtn.classList.remove('text-slate-600');
-
             renderLeads(); 
         }
 
@@ -177,12 +173,13 @@
             
             document.getElementById('profile-name').innerText = l['Lead Name'];
             const displayPhone = l['Phone'] || 'No Phone';
+            const fullAddr = `${l['Address'] || ''}, ${l['City'] || ''}, ${l['State'] || ''}`.replace(/^, /, '');
 
             document.getElementById('profile-details').innerHTML = `
                 <p class="profile-label">Main Contact Details</p>
                 <p class="profile-value">${displayPhone}</p>
-                <p class="profile-label">Address</p>
-                <p class="profile-value">${l['Address'] || '---'}</p>
+                <p class="profile-label">Full Address</p>
+                <p class="profile-value">${fullAddr || '---'}</p>
                 <div class="grid grid-cols-2 gap-4">
                     <div><p class="profile-label">Gatekeeper</p><p class="profile-value">${l['Gatekeeper Name'] || '---'}</p></div>
                     <div><p class="profile-label">Purchasing</p><p class="profile-value">${l['Purchasing Dept'] || '---'}</p></div>
@@ -208,40 +205,36 @@
 
         function renderLeads() {
             let filtered = [...allLeads];
-            
-            // Filter Logic per view
-            if (currentFilter === 'all') {
-                filtered = filtered.filter(l => !l['Status']?.includes('Closed') && !l['Status']?.includes('Trial'));
-            } else if (currentFilter === 'trials') {
-                filtered = filtered.filter(l => l['Status']?.includes('Trial'));
-            } else if (currentFilter === 'won') {
-                filtered = filtered.filter(l => l['Status']?.includes('Won'));
-            } else if (currentFilter === 'lost') {
-                filtered = filtered.filter(l => l['Status']?.includes('Lost'));
-            }
+            if (currentFilter === 'all') filtered = filtered.filter(l => !l['Status']?.includes('Closed') && !l['Status']?.includes('Trial'));
+            else if (currentFilter === 'trials') filtered = filtered.filter(l => l['Status']?.includes('Trial'));
+            else if (currentFilter === 'won') filtered = filtered.filter(l => l['Status']?.includes('Won'));
+            else if (currentFilter === 'lost') filtered = filtered.filter(l => l['Status']?.includes('Lost'));
 
             const q = document.getElementById('search').value.toLowerCase();
             if (q) filtered = filtered.filter(l => l['Lead Name'].toLowerCase().includes(q));
 
             const container = document.getElementById('lead-list');
             if (filtered.length === 0) {
-                container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found in this view.</p>`;
+                container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found.</p>`;
                 return;
             }
 
             container.innerHTML = filtered.map(l => {
                 const dates = [cleanDate(l['First Touch']), cleanDate(l['Follow up 1']), cleanDate(l['Follow up 2']), cleanDate(l['Follow up 3'])].filter(d => d !== null);
                 const lastActivity = dates.length > 0 ? new Date(Math.max(...dates)) : null;
+                
+                // RESTORED FIX: Combine Address, City, State for accurate GPS
+                const geoAddr = `${l['Address'] || ''}, ${l['City'] || ''}, ${l['State'] || ''}`.trim();
 
                 return `
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex-1 cursor-pointer" onclick="openProfile('${l['Lead Name'].replace(/'/g, "\\'")}')">
                             <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${l['Address'] || ''}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${geoAddr}</p>
                         </div>
                         <div class="flex gap-2">
-                            <a href="https://maps.apple.com/?q=${encodeURIComponent(l['Address'])}" class="bg-blue-50 p-3 rounded-full text-blue-600 action-btn">
+                            <a href="https://maps.apple.com/?q=${encodeURIComponent(geoAddr)}" class="bg-blue-50 p-3 rounded-full text-blue-600 action-btn">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"></path></svg>
                             </a>
                             <a href="tel:${l['Phone'] || ''}" class="bg-green-50 p-3 rounded-full text-green-600 action-btn">
