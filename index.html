@@ -10,85 +10,80 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
     </style>
 </head>
-<body class="pb-20">
+<body>
 
-    <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
-        <h1 class="text-[10px] font-black uppercase tracking-widest text-slate-500">Target Portal</h1>
+    <header class="bg-white p-5 border-b sticky top-0 z-50 flex justify-between items-center">
+        <h1 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Portal</h1>
         <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase"></div>
     </header>
 
-    <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
-        <p class="text-center text-slate-400 py-10">Loading targets...</p>
-    </div>
+    <div id="main-content" class="max-w-md mx-auto p-5">
+        </div>
 
     <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
         <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8">
-        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center mb-4 font-bold outline-none">
-        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Login</button>
+        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-100 text-center mb-4 font-bold outline-none border-2 border-transparent focus:border-blue-500">
+        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Enter Portal</button>
     </div>
 
     <script>
-        // PASTE YOUR NEW LINK HERE
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_pJAL1gmk8CJBvoc1QF0PQniSCTudjVMIUilYmphoovEom4AKMVVOXyM3kECyr2mA/exec";
+        // REPLACE THIS LINK WITH THE ONE YOU JUST COPIED
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfybxVm_4uPu6OHElm-7ITLN7zLSbtNnFb6yO_60VNPPfNhXKV9oTcuqxQ9enKa25CgLQj/exec";
         
         let currentAgent = localStorage.getItem('agentName') || "";
 
         window.onload = () => {
             if (!currentAgent) document.getElementById('login-screen').classList.remove('hidden');
-            else showApp();
+            else fetchLeads();
         };
 
         function login() {
             const val = document.getElementById('agent-id-input').value.trim();
             if (val) {
-                currentAgent = val;
                 localStorage.setItem('agentName', val);
                 location.reload();
             }
         }
 
         async function fetchLeads() {
-            const listDiv = document.getElementById('lead-list');
+            const container = document.getElementById('main-content');
+            document.getElementById('agent-display').innerText = currentAgent;
+            
             try {
                 const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error("Connection Failed");
+                if (!response.ok) throw new Error("Script Link Invalid");
                 const data = await response.json();
                 
-                // Matches the 'Agent' header from your sheet
+                // Matches 'Agent' column in your sheet
                 const filtered = data.filter(l => 
                     l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase()
                 );
 
                 if (filtered.length === 0) {
-                    listDiv.innerHTML = `<div class="text-center py-20 px-6 bg-white rounded-3xl shadow-sm border">
-                        <p class="font-bold text-slate-800 mb-2">No Leads Found</p>
-                        <p class="text-xs text-slate-400 leading-relaxed uppercase">Check that "${currentAgent}" is listed in the 'Agent' column of your sheet.</p>
-                        <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-blue-600 font-bold text-[10px] uppercase underline">Logout & Try Again</button>
+                    container.innerHTML = `<div class="text-center py-20">
+                        <p class="font-black text-slate-800">NO LEADS FOUND</p>
+                        <p class="text-xs text-slate-400 mt-2 uppercase">Check Column C for "${currentAgent}"</p>
+                        <button onclick="localStorage.clear(); location.reload();" class="mt-6 text-blue-600 font-bold text-[10px] underline">LOGOUT</button>
                     </div>`;
                 } else {
-                    listDiv.innerHTML = filtered.map(l => `
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                            <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${l['Contact Person'] || 'No Contact'} • ${l['Decision Maker Role'] || 'No Role'}</p>
-                            <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
-                                <div><p class="text-[9px] font-black text-slate-400 uppercase">Status</p><p class="text-[10px] font-bold text-slate-600">${l['Status']}</p></div>
-                                <div class="text-right"><p class="text-[9px] font-black text-slate-400 uppercase">Activity</p><p class="text-[10px] font-bold text-blue-600">${l['Last Updated'] || '---'}</p></div>
+                    container.innerHTML = filtered.map(l => `
+                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border mb-4">
+                            <h3 class="font-black text-slate-800">${l['Lead Name']}</h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase">${l['Contact Person'] || '---'}</p>
+                            <div class="mt-4 pt-4 border-t flex justify-between items-center">
+                                <span class="text-[10px] font-black text-slate-500 uppercase bg-slate-100 px-3 py-1 rounded-full">${l['Status']}</span>
+                                <span class="text-[10px] font-bold text-blue-600">VIEW PROFILE</span>
                             </div>
                         </div>
                     `).join('');
                 }
             } catch (e) {
-                listDiv.innerHTML = `<div class="bg-red-50 p-8 rounded-[2rem] text-center border-2 border-red-100">
-                    <p class="font-black text-red-600 text-xs uppercase mb-2">Sync Error</p>
-                    <p class="text-[10px] text-red-400 uppercase leading-relaxed">The link in GitHub does not match your current Google Deployment link.</p>
+                container.innerHTML = `<div class="bg-red-50 p-10 rounded-[2rem] text-center border-2 border-red-100">
+                    <p class="font-black text-red-600 uppercase text-xs mb-2">Sync Error</p>
+                    <p class="text-[10px] text-red-400 uppercase leading-relaxed mb-6">Failed to connect to Google Sheets</p>
+                    <button onclick="localStorage.clear(); location.reload();" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] uppercase">Reset App Connection</button>
                 </div>`;
             }
-        }
-
-        function showApp() {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('agent-display').innerText = currentAgent;
-            fetchLeads();
         }
     </script>
 </body>
