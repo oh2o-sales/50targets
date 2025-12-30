@@ -3,269 +3,142 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Top 50 Targets Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-        .profile-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
-        .profile-value { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
-        #sidebar { transition: transform 0.3s ease-in-out; z-index: 100; }
-        .sidebar-open { transform: translateX(0) !important; }
-        .note-card { background: #f1f5f9; padding: 14px; border-radius: 16px; border-left: 4px solid #3b82f6; margin-bottom: 10px; }
-        .action-btn { transition: all 0.2s; }
-        .action-btn:active { transform: scale(0.95); opacity: 0.8; }
-        .sort-active { background-color: #2563eb !important; color: white !important; border-color: #2563eb !important; }
+        .action-btn:active { transform: scale(0.98); opacity: 0.9; }
     </style>
 </head>
 <body class="pb-20">
 
-    <div id="sidebar-overlay" onclick="toggleMenu()" class="hidden fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60]"></div>
-    <div id="sidebar" class="fixed top-0 left-0 h-full w-64 bg-white shadow-2xl -translate-x-full p-6 flex flex-col">
-        <div class="flex flex-col items-center mb-10">
-            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 w-auto mb-2" alt="Logo">
-            <p class="text-[10px] font-black text-slate-400 tracking-widest uppercase text-center">Target Manager</p>
-        </div>
-        <nav id="nav-links" class="space-y-1 flex-1">
-            <button onclick="setView('all')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 bg-blue-50 text-blue-600">Active Leads</button>
-            <button onclick="setView('trials')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 text-slate-600">Trials</button>
-            <button onclick="setView('won')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 text-slate-600">Closed Won</button>
-            <button onclick="setView('lost')" class="nav-item w-full text-left p-4 rounded-xl font-bold flex items-center gap-3 text-slate-600">Closed Lost</button>
-        </nav>
-        <button onclick="logout()" class="p-4 text-[10px] font-black uppercase text-slate-400 tracking-widest text-left">Logout Agent</button>
-    </div>
-
-    <header class="bg-white/90 backdrop-blur-md sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
-        <button onclick="toggleMenu()" class="p-2 text-slate-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke-width="2.5" stroke-linecap="round"></path></svg>
-        </button>
-        <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Top 50 Targets Portal</span>
+    <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
+        <h1 class="text-[10px] font-black uppercase tracking-widest text-slate-500">Top 50 Targets Portal</h1>
         <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase"></div>
     </header>
 
-    <div class="px-5 pt-6">
-        <div class="flex gap-2 max-w-md mx-auto">
-            <div class="relative flex-1">
-                <input type="text" id="search" oninput="handleSearch()" placeholder="Search targets..." class="w-full p-4 pl-12 rounded-2xl bg-white shadow-sm border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
-                <div class="absolute left-4 top-4 text-slate-300">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"></path></svg>
-                </div>
-            </div>
-            <button onclick="toggleSort()" id="sort-btn" class="bg-white px-4 rounded-2xl border border-slate-200 shadow-sm text-slate-400 action-btn">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            </button>
-        </div>
+    <div class="px-5 pt-6 max-w-md mx-auto">
+        <input type="text" id="search" oninput="renderLeads()" placeholder="Search targets..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
     </div>
 
-    <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
-
-    <div id="profile-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-6">
-        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
-            <div class="flex justify-between items-start mb-6">
-                <h2 id="profile-name" class="text-2xl font-black text-slate-800 leading-tight"></h2>
-                <button onclick="closeProfile()" class="text-slate-300">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="3"></path></svg>
-                </button>
-            </div>
-            <div id="profile-details"></div>
-            <div class="mt-6 border-t pt-6">
-                <h3 class="data-label mb-4">Visit History</h3>
-                <div id="notes-history" class="space-y-3"></div>
-            </div>
-            <button onclick="closeProfile()" class="w-full mt-8 py-4 bg-slate-100 text-slate-500 font-bold rounded-2xl action-btn">Return to List</button>
-        </div>
+    <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
+        <p class="text-center text-slate-400 py-10">Loading your targets...</p>
     </div>
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end justify-center">
-        <div class="bg-white rounded-t-[3rem] p-8 w-full max-w-md max-h-[95vh] overflow-y-auto shadow-2xl">
-            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800 leading-tight"></h2>
+        <div class="bg-white rounded-t-[2.5rem] p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800"></h2>
             <div class="space-y-4">
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Current Status</label>
+                        <label class="data-label">Status</label>
                         <select id="status-input" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
                             <option value="Active">Active</option>
                             <option value="Ready for Trial">Ready for Trial</option>
                             <option value="Trial Installed">Trial Installed</option>
-                            <option value="Closed/Won">Closed/Won</option>
-                            <option value="Closed/Lost">Closed/Lost</option>
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="data-label ml-1">Visit Type</label>
+                        <label class="data-label">Visit Type</label>
                         <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-xl border-none outline-none">
                             <option value="First Touch">First Touch</option>
                             <option value="Follow up 1">Follow up 1</option>
                             <option value="Follow up 2">Follow up 2</option>
-                            <option value="Follow up 3">Follow up 3</option>
                         </select>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1">
-                        <label class="data-label ml-1">Gatekeeper Name</label>
-                        <input type="text" id="gk-input" placeholder="Name" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
-                    </div>
-                    <div class="space-y-1">
-                        <label class="data-label ml-1">Purchasing Dept</label>
-                        <input type="text" id="purch-input" placeholder="Contact" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
-                    </div>
-                </div>
                 <div class="space-y-1">
-                    <label class="data-label ml-1">Current Solution</label>
-                    <input type="text" id="solution-input" placeholder="What are they using?" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
-                </div>
-
-                <div class="space-y-1">
-                    <label class="data-label ml-1 text-blue-600 font-black">Visit Notes</label>
-                    <textarea id="note-input" oninput="validateForm()" placeholder="Summary of the visit..." class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    <label class="data-label">Visit Notes</label>
+                    <textarea id="note-input" class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500" placeholder="What happened during the visit?"></textarea>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400 action-btn">Cancel</button>
-                    <button id="save-btn" disabled onclick="submitUpdate()" class="flex-1 py-4 bg-slate-900 text-white font-bold rounded-xl shadow-lg action-btn">Log Visit</button>
+                    <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-slate-900 text-white font-bold rounded-xl shadow-lg action-btn">Log Visit</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-28 w-auto mb-4" alt="Logo">
-        <div class="w-full max-w-xs bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-xl text-center">
-            <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full p-5 rounded-2xl bg-slate-50 border-none text-center mb-4 outline-none font-bold">
-            <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase tracking-widest text-xs action-btn">Enter Portal</button>
-        </div>
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-20 mb-8">
+        <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center mb-4 font-bold outline-none">
+        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest action-btn">Enter Portal</button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfybxVm_4uPu6OHElm-7ITLN7zLSbtNnFb6yO_60VNPPfNhXKV9oTcuqxQ9enKa25CgLQj/exec";
         let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
-        let currentFilter = "all";
-        let sortByLastUpdated = false;
 
-        function cleanDate(d) { if (!d || d === "" || d === "---") return null; const date = new Date(d); return isNaN(date) ? null : date; }
-        function formatDateUI(date) { if (!date) return "---"; return date.toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' }); }
+        window.onload = () => {
+            if (!currentAgent) {
+                document.getElementById('login-screen').classList.remove('hidden');
+            } else {
+                showApp();
+            }
+        };
 
-        window.onload = () => { if (!currentAgent) { document.getElementById('login-screen').classList.remove('hidden'); } else { showApp(); } };
-        function login() { const val = document.getElementById('agent-id-input').value.trim(); if (val) { currentAgent = val; localStorage.setItem('agentName', val); showApp(); } }
-        function logout() { localStorage.removeItem('agentName'); location.reload(); }
-        function showApp() { document.getElementById('login-screen').classList.add('hidden'); document.getElementById('agent-display').innerText = currentAgent; fetchLeads(); }
+        function login() {
+            const val = document.getElementById('agent-id-input').value.trim();
+            if (val) {
+                currentAgent = val;
+                localStorage.setItem('agentName', val);
+                showApp();
+            }
+        }
+
+        function showApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('agent-display').innerText = currentAgent;
+            fetchLeads();
+        }
 
         async function fetchLeads() {
             try {
                 const response = await fetch(SCRIPT_URL);
                 const data = await response.json();
-                allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
-                renderLeads();
-            } catch (e) { 
+                // Matching exactly what appears in the header row
+                allLeads = data.filter(l => 
+                    l['Agent'] && l['Agent'].toString().trim().toLowerCase() === currentAgent.toLowerCase()
+                );
+                
+                if (allLeads.length === 0) {
+                    document.getElementById('lead-list').innerHTML = `
+                        <div class="text-center py-20 px-10">
+                            <p class="font-bold text-slate-800 mb-2 text-lg">No Leads Found</p>
+                            <p class="text-sm text-slate-400 leading-relaxed">Ensure your name "${currentAgent}" is listed exactly in the 'Agent' column of the Google Sheet.</p>
+                            <button onclick="localStorage.clear(); location.reload();" class="mt-6 text-blue-600 font-bold text-xs uppercase underline">Try different login</button>
+                        </div>`;
+                } else {
+                    renderLeads();
+                }
+            } catch (e) {
                 document.getElementById('lead-list').innerHTML = `<p class="text-center text-red-500 font-bold p-10">Sync Error. Refresh app.</p>`;
             }
         }
 
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('sidebar-open'); document.getElementById('sidebar-overlay').classList.toggle('hidden'); }
-        function toggleSort() { sortByLastUpdated = !sortByLastUpdated; document.getElementById('sort-btn').classList.toggle('sort-active'); renderLeads(); }
-
-        function setView(view) { 
-            currentFilter = view; toggleMenu(); 
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('bg-blue-50', 'text-blue-600'));
-            renderLeads(); 
-        }
-
-        function openProfile(name) {
-            const l = allLeads.find(lead => lead['Lead Name'] === name);
-            if (!l) return;
-            document.getElementById('profile-name').innerText = l['Lead Name'];
-            
-            document.getElementById('profile-details').innerHTML = `
-                <div class="grid grid-cols-2 gap-x-4">
-                    <div><p class="profile-label">Contact Person</p><p class="profile-value">${l['Contact Person'] || '---'}</p></div>
-                    <div><p class="profile-label">Role</p><p class="profile-value">${l['Decision Maker Role'] || '---'}</p></div>
-                </div>
-                <p class="profile-label">Phone & Address</p>
-                <p class="profile-value">${l['Phone'] || '---'} • ${l['Address'] || ''}</p>
-                <div class="grid grid-cols-2 gap-x-4 border-t pt-4">
-                    <div><p class="profile-label">Gatekeeper</p><p class="profile-value">${l['Gatekeeper Name'] || '---'}</p></div>
-                    <div><p class="profile-label">Purchasing</p><p class="profile-value">${l['Purchasing Dept'] || '---'}</p></div>
-                </div>
-                <p class="profile-label">Current Solution</p>
-                <p class="profile-value">${l['Current Solution'] || '---'}</p>
-            `;
-            
-            const noteKeys = ['First Touch Notes', 'Follow up 1 Notes', 'Follow up 2 Notes', 'Follow up 3 Notes'];
-            const dateKeys = ['First Touch', 'Follow up 1', 'Follow up 2', 'Follow up 3'];
-            let notesHtml = '';
-            noteKeys.forEach((key, index) => {
-                if (l[key] && l[key] !== '---') {
-                    const d = formatDateUI(cleanDate(l[dateKeys[index]]));
-                    notesHtml += `<div class="note-card"><p class="text-[9px] font-black text-blue-500 uppercase mb-1">${dateKeys[index]} (${d})</p><p class="text-sm text-slate-700 font-medium">"${l[key]}"</p></div>`;
-                }
-            });
-            document.getElementById('notes-history').innerHTML = notesHtml || '<p class="text-center text-slate-300 py-4 italic text-sm">No visit notes.</p>';
-            document.getElementById('profile-modal').classList.remove('hidden');
-        }
-
-        function closeProfile() { document.getElementById('profile-modal').classList.add('hidden'); }
-        function handleSearch() { renderLeads(); }
-        function validateForm() { document.getElementById('save-btn').disabled = (document.getElementById('note-input').value.trim().length < 3); }
-
         function renderLeads() {
-            let filtered = [...allLeads];
-            if (currentFilter === 'all') filtered = filtered.filter(l => !l['Status']?.includes('Closed') && !l['Status']?.includes('Trial'));
-            else if (currentFilter === 'trials') filtered = filtered.filter(l => l['Status']?.includes('Trial'));
-            else if (currentFilter === 'won') filtered = filtered.filter(l => l['Status']?.includes('Won'));
-            else if (currentFilter === 'lost') filtered = filtered.filter(l => l['Status']?.includes('Lost'));
-
             const q = document.getElementById('search').value.toLowerCase();
-            if (q) filtered = filtered.filter(l => l['Lead Name'].toLowerCase().includes(q));
-
-            if (sortByLastUpdated) {
-                filtered.sort((a, b) => {
-                    const aDates = [cleanDate(a['First Touch']), cleanDate(a['Follow up 1']), cleanDate(a['Follow up 2']), cleanDate(a['Follow up 3']), cleanDate(a['Last Updated'])].filter(d => d !== null);
-                    const bDates = [cleanDate(b['First Touch']), cleanDate(b['Follow up 1']), cleanDate(b['Follow up 2']), cleanDate(b['Follow up 3']), cleanDate(b['Last Updated'])].filter(d => d !== null);
-                    return (bDates.length > 0 ? Math.max(...bDates) : 0) - (aDates.length > 0 ? Math.max(...aDates) : 0);
-                });
-            } else { filtered.sort((a, b) => a['Lead Name'].localeCompare(b['Lead Name'])); }
-
-            document.getElementById('lead-list').innerHTML = filtered.map(l => {
-                const dates = [cleanDate(l['First Touch']), cleanDate(l['Follow up 1']), cleanDate(l['Follow up 2']), cleanDate(l['Follow up 3']), cleanDate(l['Last Updated'])].filter(d => d !== null);
-                const lastActivity = dates.length > 0 ? new Date(Math.max(...dates)) : null;
-                const geoAddr = `${l['Address'] || ''}, ${l['City'] || ''}, ${l['State'] || ''}`.trim();
-                return `
+            const filtered = allLeads.filter(l => l['Lead Name'] && l['Lead Name'].toLowerCase().includes(q));
+            
+            document.getElementById('lead-list').innerHTML = filtered.map(l => `
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="flex-1 cursor-pointer" onclick="openProfile('${l['Lead Name'].replace(/'/g, "\\'")}')">
-                            <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${l['Contact Person'] || 'No Contact'} • ${l['Decision Maker Role'] || 'No Role'}</p>
-                        </div>
-                        <a href="https://maps.apple.com/?q=${encodeURIComponent(geoAddr)}" class="bg-blue-50 p-3 rounded-full text-blue-600 action-btn">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"></path></svg>
-                        </a>
+                    <h3 class="font-black text-lg text-slate-800">${l['Lead Name'] || 'Unnamed'}</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${l['Contact Person'] || 'No Contact'} • ${l['Decision Maker Role'] || 'No Role'}</p>
+                    <div class="bg-slate-50 p-4 rounded-2xl mb-4 flex justify-between items-center">
+                        <div><p class="data-label">Status</p><p class="text-[10px] font-bold text-slate-600">${l['Status'] || 'Active'}</p></div>
+                        <div class="text-right"><p class="data-label">Phone</p><p class="text-[10px] font-bold text-blue-600">${l['Phone'] || '---'}</p></div>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl mb-5 flex justify-between items-center">
-                        <div><p class="data-label">Activity</p><p class="text-[10px] font-bold text-blue-600">${formatDateUI(lastActivity)}</p></div>
-                        <div class="text-right"><p class="data-label">Status</p><p class="text-[10px] font-bold text-slate-600">${l['Status'] || 'Active'}</p></div>
-                    </div>
-                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg action-btn">Update Visit</button>
-                </div>`;
-            }).join('');
+                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl shadow-lg action-btn">Update Visit</button>
+                </div>
+            `).join('');
         }
 
         function openModal(name) {
-            const lead = allLeads.find(l => l['Lead Name'] === name);
-            if (!lead) return;
             document.getElementById('modal-title').innerText = name;
-            document.getElementById('status-input').value = lead['Status'] || "Active";
-            document.getElementById('gk-input').value = lead['Gatekeeper Name'] || "";
-            document.getElementById('purch-input').value = lead['Purchasing Dept'] || "";
-            document.getElementById('solution-input').value = lead['Current Solution'] || "";
-            document.getElementById('note-input').value = "";
             document.getElementById('modal').classList.remove('hidden');
-            validateForm();
         }
 
         function closeModal() { document.getElementById('modal').classList.add('hidden'); }
@@ -276,10 +149,7 @@
                 leadName: document.getElementById('modal-title').innerText,
                 status: document.getElementById('status-input').value,
                 visitType: document.getElementById('visit-type').value,
-                notes: document.getElementById('note-input').value,
-                gatekeeperName: document.getElementById('gk-input').value,
-                purchasingDept: document.getElementById('purch-input').value,
-                currentSolution: document.getElementById('solution-input').value
+                notes: document.getElementById('note-input').value
             };
             btn.innerText = "Syncing..."; btn.disabled = true;
             try {
