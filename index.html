@@ -8,82 +8,191 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+        .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+        .action-btn:active { transform: scale(0.96); opacity: 0.9; }
     </style>
 </head>
-<body>
+<body class="pb-20">
 
-    <header class="bg-white p-5 border-b sticky top-0 z-50 flex justify-between items-center">
-        <h1 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Portal</h1>
+    <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
+        <h1 class="text-[10px] font-black uppercase tracking-widest text-slate-500">Target Portal</h1>
         <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase"></div>
     </header>
 
-    <div id="main-content" class="max-w-md mx-auto p-5">
-        </div>
+    <div class="px-5 pt-6 max-w-md mx-auto">
+        <input type="text" id="search" oninput="renderLeads()" placeholder="Search leads..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+    </div>
 
-    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8">
-        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-100 text-center mb-4 font-bold outline-none border-2 border-transparent focus:border-blue-500">
-        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Enter Portal</button>
+    <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
+        <div class="text-center py-20">
+            <p class="text-slate-400 animate-pulse">Connecting to Sheet...</p>
+        </div>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end justify-center">
+        <div class="bg-white rounded-t-[2.5rem] p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800"></h2>
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="data-label">Status</label>
+                        <select id="status-input" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                            <option value="Active">Active</option>
+                            <option value="Ready for Trial">Ready for Trial</option>
+                            <option value="Trial Installed">Trial Installed</option>
+                            <option value="Closed/Won">Closed/Won</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="data-label">Visit Type</label>
+                        <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-xl border-none outline-none">
+                            <option value="First Touch">First Touch</option>
+                            <option value="Follow up 1">Follow up 1</option>
+                            <option value="Follow up 2">Follow up 2</option>
+                            <option value="Follow up 3">Follow up 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="data-label">Intelligence Gathering</label>
+                    <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-50 rounded-xl font-bold mb-2 outline-none">
+                    <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="data-label">Visit Notes</label>
+                    <textarea id="note-input" class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500" placeholder="Log details here..."></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400 action-btn">Cancel</button>
+                    <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-slate-900 text-white font-bold rounded-xl shadow-lg action-btn">Log Visit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8 text-center">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8 mx-auto">
+        <h2 class="font-black text-slate-800 text-xl mb-2">Welcome Back</h2>
+        <p class="text-slate-400 text-sm mb-8">Enter your agent name to continue</p>
+        <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center mb-4 font-bold outline-none focus:ring-2 focus:ring-blue-500">
+        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest action-btn">Enter Portal</button>
     </div>
 
     <script>
-        // REPLACE THIS LINK WITH THE ONE YOU JUST COPIED
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_pJAL1gmk8CJBvoc1QF0PQniSCTudjVMIUilYmphoovEom4AKMVVOXyM3kECyr2mA/exec";
+        // UPDATED SCRIPT URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpA66EukiUsr0a5O1078AbXbBLGjGhi-BiO20OZlr3NHtlk5qhM5aa0Tky4imbZzrL/exec";
         
+        let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
 
         window.onload = () => {
             if (!currentAgent) document.getElementById('login-screen').classList.remove('hidden');
-            else fetchLeads();
+            else showApp();
         };
 
         function login() {
             const val = document.getElementById('agent-id-input').value.trim();
             if (val) {
+                currentAgent = val;
                 localStorage.setItem('agentName', val);
                 location.reload();
             }
         }
 
         async function fetchLeads() {
-            const container = document.getElementById('main-content');
-            document.getElementById('agent-display').innerText = currentAgent;
-            
+            const listDiv = document.getElementById('lead-list');
             try {
                 const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error("Script Link Invalid");
-                const data = await response.json();
-                
-                // Matches 'Agent' column in your sheet
-                const filtered = data.filter(l => 
-                    l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase()
-                );
-
-                if (filtered.length === 0) {
-                    container.innerHTML = `<div class="text-center py-20">
-                        <p class="font-black text-slate-800">NO LEADS FOUND</p>
-                        <p class="text-xs text-slate-400 mt-2 uppercase">Check Column C for "${currentAgent}"</p>
-                        <button onclick="localStorage.clear(); location.reload();" class="mt-6 text-blue-600 font-bold text-[10px] underline">LOGOUT</button>
-                    </div>`;
-                } else {
-                    container.innerHTML = filtered.map(l => `
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border mb-4">
-                            <h3 class="font-black text-slate-800">${l['Lead Name']}</h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase">${l['Contact Person'] || '---'}</p>
-                            <div class="mt-4 pt-4 border-t flex justify-between items-center">
-                                <span class="text-[10px] font-black text-slate-500 uppercase bg-slate-100 px-3 py-1 rounded-full">${l['Status']}</span>
-                                <span class="text-[10px] font-bold text-blue-600">VIEW PROFILE</span>
-                            </div>
-                        </div>
-                    `).join('');
-                }
+                if (!response.ok) throw new Error("Sync Error");
+                allLeads = await response.json();
+                renderLeads();
             } catch (e) {
-                container.innerHTML = `<div class="bg-red-50 p-10 rounded-[2rem] text-center border-2 border-red-100">
-                    <p class="font-black text-red-600 uppercase text-xs mb-2">Sync Error</p>
-                    <p class="text-[10px] text-red-400 uppercase leading-relaxed mb-6">Failed to connect to Google Sheets</p>
-                    <button onclick="localStorage.clear(); location.reload();" class="bg-red-600 text-white px-6 py-3 rounded-xl font-bold text-[10px] uppercase">Reset App Connection</button>
+                listDiv.innerHTML = `<div class="bg-red-50 p-10 rounded-[2.5rem] border-2 border-red-100 text-center">
+                    <p class="font-black text-red-600 text-xs uppercase mb-2">Sync Error</p>
+                    <p class="text-[10px] text-red-400 uppercase leading-relaxed mb-6">Check your Google Script Deployment is set to 'Anyone'</p>
+                    <button onclick="localStorage.clear(); location.reload();" class="bg-red-600 text-white px-8 py-4 rounded-2xl font-bold text-xs uppercase shadow-lg">Reset App</button>
                 </div>`;
             }
+        }
+
+        function renderLeads() {
+            const listDiv = document.getElementById('lead-list');
+            const q = document.getElementById('search').value.toLowerCase();
+            
+            // Filters based on the 'Agent' column from your sheet
+            const filtered = allLeads.filter(l => 
+                l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase() &&
+                (l['Lead Name'].toLowerCase().includes(q) || l['Status'].toLowerCase().includes(q))
+            );
+
+            if (filtered.length === 0) {
+                listDiv.innerHTML = `<p class="text-center py-20 text-slate-400">No leads found for "${currentAgent}"</p>`;
+                return;
+            }
+
+            listDiv.innerHTML = filtered.map(l => `
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
+                        <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase">${l['Status']}</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${l['Contact Person'] || 'No Contact'} • ${l['Decision Maker Role'] || 'No Role'}</p>
+                    
+                    <div class="bg-slate-50 p-4 rounded-2xl mb-4 space-y-2">
+                        <div class="flex justify-between text-[10px] font-bold">
+                            <span class="text-slate-400">PHONE</span>
+                            <span class="text-blue-600">${l['Phone'] || '---'}</span>
+                        </div>
+                        <div class="flex justify-between text-[10px] font-bold">
+                            <span class="text-slate-400">CITY</span>
+                            <span class="text-slate-600">${l['City'] || '---'}</span>
+                        </div>
+                    </div>
+                    <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase rounded-2xl shadow-lg action-btn">Update Visit</button>
+                </div>
+            `).join('');
+        }
+
+        function openModal(name) {
+            const lead = allLeads.find(l => l['Lead Name'] === name);
+            document.getElementById('modal-title').innerText = name;
+            document.getElementById('status-input').value = lead['Status'] || "Active";
+            document.getElementById('gk-input').value = lead['Gatekeeper Name'] || "";
+            document.getElementById('solution-input').value = lead['Current Solution'] || "";
+            document.getElementById('note-input').value = "";
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+        async function submitUpdate() {
+            const btn = document.getElementById('save-btn');
+            const payload = { 
+                leadName: document.getElementById('modal-title').innerText,
+                status: document.getElementById('status-input').value,
+                visitType: document.getElementById('visit-type').value,
+                notes: document.getElementById('note-input').value,
+                gatekeeperName: document.getElementById('gk-input').value,
+                currentSolution: document.getElementById('solution-input').value
+            };
+            btn.innerText = "Syncing..."; btn.disabled = true;
+            try {
+                const res = await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+                if (res.ok) {
+                    closeModal();
+                    fetchLeads();
+                }
+            } catch (e) { alert("Error syncing."); }
+            btn.innerText = "Log Visit"; btn.disabled = false;
+        }
+
+        function showApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('agent-display').innerText = currentAgent;
+            fetchLeads();
         }
     </script>
 </body>
