@@ -7,41 +7,35 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
     </style>
 </head>
 <body class="pb-20">
 
-    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-20 mb-8">
-        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-100 text-center mb-4 font-bold outline-none border-2 border-transparent focus:border-blue-500">
-        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Login to Portal</button>
-    </div>
-
-    <header class="bg-white p-5 border-b sticky top-0 z-50 flex justify-between items-center shadow-sm">
-        <span class="text-[10px] font-black uppercase text-slate-400">Target Manager</span>
+    <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
+        <h1 class="text-[10px] font-black uppercase tracking-widest text-slate-500">Target Portal</h1>
         <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase"></div>
     </header>
 
-    <div id="lead-list" class="max-w-md mx-auto p-5 space-y-4">
-        <div class="text-center py-20">
-            <div class="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p class="text-slate-400 font-medium">Connecting to your data...</p>
-        </div>
+    <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
+        <p class="text-center text-slate-400 py-10">Loading targets...</p>
+    </div>
+
+    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8">
+        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center mb-4 font-bold outline-none">
+        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Login</button>
     </div>
 
     <script>
-        // 1. YOUR SCRIPT URL
+        // PASTE YOUR NEW LINK HERE
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_pJAL1gmk8CJBvoc1QF0PQniSCTudjVMIUilYmphoovEom4AKMVVOXyM3kECyr2mA/exec";
         
         let currentAgent = localStorage.getItem('agentName') || "";
 
         window.onload = () => {
-            if (!currentAgent) {
-                document.getElementById('login-screen').classList.remove('hidden');
-            } else {
-                showApp();
-            }
+            if (!currentAgent) document.getElementById('login-screen').classList.remove('hidden');
+            else showApp();
         };
 
         function login() {
@@ -57,41 +51,37 @@
             const listDiv = document.getElementById('lead-list');
             try {
                 const response = await fetch(SCRIPT_URL);
-                if (!response.ok) throw new Error("Google Script is not responding (Status " + response.status + ")");
-                
+                if (!response.ok) throw new Error("Connection Failed");
                 const data = await response.json();
                 
-                // Filtering based on the "Agent" column (Column C)
+                // Matches the 'Agent' header from your sheet
                 const filtered = data.filter(l => 
                     l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase()
                 );
 
                 if (filtered.length === 0) {
-                    listDiv.innerHTML = `
-                        <div class="bg-white p-8 rounded-[2rem] text-center shadow-sm border">
-                            <p class="font-bold text-slate-800 text-lg mb-2">No Leads Found</p>
-                            <p class="text-sm text-slate-400 mb-6">We found your sheet, but no leads are assigned to "${currentAgent}" in the 'Agent' column.</p>
-                            <button onclick="localStorage.clear(); location.reload();" class="text-blue-600 font-bold text-xs uppercase underline">Try different name</button>
-                        </div>`;
+                    listDiv.innerHTML = `<div class="text-center py-20 px-6 bg-white rounded-3xl shadow-sm border">
+                        <p class="font-bold text-slate-800 mb-2">No Leads Found</p>
+                        <p class="text-xs text-slate-400 leading-relaxed uppercase">Check that "${currentAgent}" is listed in the 'Agent' column of your sheet.</p>
+                        <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-blue-600 font-bold text-[10px] uppercase underline">Logout & Try Again</button>
+                    </div>`;
                 } else {
                     listDiv.innerHTML = filtered.map(l => `
                         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                            <h3 class="font-black text-lg text-slate-800">${l['Lead Name'] || 'Unnamed'}</h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${l['Contact Person'] || '---'} • ${l['Decision Maker Role'] || '---'}</p>
+                            <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${l['Contact Person'] || 'No Contact'} • ${l['Decision Maker Role'] || 'No Role'}</p>
                             <div class="bg-slate-50 p-4 rounded-2xl flex justify-between items-center">
-                                <div><p class="text-[9px] font-black text-slate-400 uppercase">Status</p><p class="text-[10px] font-bold text-slate-600">${l['Status'] || 'Active'}</p></div>
-                                <div class="text-right"><p class="text-[9px] font-black text-slate-400 uppercase">Phone</p><p class="text-[10px] font-bold text-blue-600">${l['Phone'] || '---'}</p></div>
+                                <div><p class="text-[9px] font-black text-slate-400 uppercase">Status</p><p class="text-[10px] font-bold text-slate-600">${l['Status']}</p></div>
+                                <div class="text-right"><p class="text-[9px] font-black text-slate-400 uppercase">Activity</p><p class="text-[10px] font-bold text-blue-600">${l['Last Updated'] || '---'}</p></div>
                             </div>
                         </div>
                     `).join('');
                 }
             } catch (e) {
-                listDiv.innerHTML = `
-                    <div class="bg-red-50 p-8 rounded-[2rem] border-2 border-red-100 text-center">
-                        <p class="font-black text-red-600 uppercase text-xs mb-2">Sync Error</p>
-                        <p class="text-sm text-red-500 mb-4">${e.message}</p>
-                        <p class="text-[10px] text-slate-400 leading-relaxed uppercase">1. Go to Google Script<br>2. Click Deploy > Manage<br>3. Set access to 'ANYONE'</p>
-                    </div>`;
+                listDiv.innerHTML = `<div class="bg-red-50 p-8 rounded-[2rem] text-center border-2 border-red-100">
+                    <p class="font-black text-red-600 text-xs uppercase mb-2">Sync Error</p>
+                    <p class="text-[10px] text-red-400 uppercase leading-relaxed">The link in GitHub does not match your current Google Deployment link.</p>
+                </div>`;
             }
         }
 
