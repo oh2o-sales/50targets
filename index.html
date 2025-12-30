@@ -31,10 +31,7 @@
         </header>
 
         <div class="px-5 pt-6 max-w-md mx-auto">
-            <div class="relative">
-                <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search targets or cities..." class="w-full p-4 pl-12 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
-                <svg class="w-5 h-5 absolute left-4 top-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </div>
+            <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search targets..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
         </div>
 
         <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
@@ -49,8 +46,9 @@
                 <p id="modal-subtitle" class="text-xs font-bold text-slate-400 uppercase mt-1 mb-6"></p>
 
                 <div class="bg-slate-50 rounded-3xl p-5 mb-8 space-y-3">
-                    <p class="data-label text-blue-500">Lead Insights</p>
-                    <div id="quick-profile" class="text-sm space-y-2"></div>
+                    <p class="data-label text-blue-500">Company Information</p>
+                    <div id="quick-profile" class="text-sm space-y-2">
+                        </div>
                 </div>
 
                 <div class="space-y-5 border-t pt-6">
@@ -79,14 +77,18 @@
                     </div>
 
                     <div class="space-y-3">
-                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
-                        <input type="text" id="purchasing-input" placeholder="Purchasing Dept Contact" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
-                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
+                        <div class="space-y-1">
+                            <label class="data-label">Visit Date</label>
+                            <input type="date" id="visit-date" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent">
+                        </div>
+                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent">
+                        <input type="text" id="purchasing-input" placeholder="Purchasing Dept" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent">
+                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent">
                     </div>
 
                     <div class="space-y-1">
                         <label class="data-label">Visit Notes</label>
-                        <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Details from this visit..."></textarea>
+                        <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl border-none outline-none text-sm" placeholder="Enter notes..."></textarea>
                     </div>
                 </div>
             </div>
@@ -99,7 +101,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpA66EukiUsr0a5O1078AbXbBLGjGhi-BiO20OZlr3NHtlk5qhM5aa0Tky4imbZzrL/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpA66EukiUsr0a5O1078AbXbBLGjGhi-BiO20OZlr3NHtlk5qhM5aa0Tky4imbZzrL/exec"; // Update this with your latest URL
         let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
 
@@ -129,22 +131,18 @@
         function renderLeads() {
             const listDiv = document.getElementById('lead-list');
             const query = document.getElementById('search-input').value.toLowerCase();
-            
             const filtered = allLeads.filter(l => 
                 l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase() &&
-                (l['Lead Name'].toLowerCase().includes(query) || l['City'].toLowerCase().includes(query))
+                (l['Lead Name'].toLowerCase().includes(query))
             );
 
             listDiv.innerHTML = filtered.map(l => `
                 <div onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 active:scale-95 transition-all">
                     <div class="flex justify-between items-start mb-2">
                         <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                        <span class="text-[9px] font-black px-2 py-1 ${l['Status'] === 'Closed/Lost' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'} rounded-md uppercase tracking-wider shrink-0">${l['Status'] || 'Active'}</span>
+                        <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase tracking-wider">${l['Status'] || 'Active'}</span>
                     </div>
-                    <div class="flex justify-between items-end">
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">${l['Address'] || '---'} • ${l['City'] || ''}</p>
-                        <p class="text-[9px] font-black text-slate-300 uppercase">Visited: ${l['Last Updated'] ? l['Last Updated'].split(' ')[0] : 'Never'}</p>
-                    </div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">${l['Address'] || '---'} • ${l['City'] || ''}</p>
                 </div>
             `).join('');
         }
@@ -154,14 +152,14 @@
             document.getElementById('modal-title').innerText = name;
             document.getElementById('modal-subtitle').innerText = `${l['Contact Person']} • ${l['Decision Maker Role']}`;
             
+            // Restore Address and Phone View
             document.getElementById('quick-profile').innerHTML = `
-                <div class="flex justify-between"><span><strong>Phone:</strong></span> <span>${l['Phone'] || '---'}</span></div>
-                <div class="flex justify-between"><span><strong>Purchasing:</strong></span> <span>${l['Purchasing Dept'] || '---'}</span></div>
-                <div class="flex justify-between"><span><strong>Gatekeeper:</strong></span> <span>${l['Gatekeeper Name'] || '---'}</span></div>
-                <div class="flex justify-between text-blue-600"><span><strong>Current Sol:</strong></span> <span>${l['Current Solution'] || '---'}</span></div>
+                <p><strong>Phone:</strong> ${l['Phone'] || '---'}</p>
+                <p><strong>Address:</strong> ${l['Address']}, ${l['City']}, ${l['State']}</p>
             `;
 
             document.getElementById('status-input').value = l['Status'] || "Active";
+            document.getElementById('visit-date').value = new Date().toISOString().split('T')[0];
             document.getElementById('gk-input').value = l['Gatekeeper Name'] || "";
             document.getElementById('purchasing-input').value = l['Purchasing Dept'] || "";
             document.getElementById('solution-input').value = l['Current Solution'] || "";
@@ -177,6 +175,7 @@
                 leadName: document.getElementById('modal-title').innerText,
                 status: document.getElementById('status-input').value,
                 visitType: document.getElementById('visit-type').value,
+                visitDate: document.getElementById('visit-date').value,
                 notes: document.getElementById('note-input').value,
                 gatekeeperName: document.getElementById('gk-input').value,
                 purchasingDept: document.getElementById('purchasing-input').value,
@@ -190,7 +189,7 @@
                     closeModal();
                     fetchLeads();
                     btn.innerText = "Sync Visit"; btn.disabled = false;
-                }, 1000);
+                }, 1200);
             } catch (e) { alert("Sync Failed"); btn.innerText = "Sync Visit"; btn.disabled = false; }
         }
 
