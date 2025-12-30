@@ -142,7 +142,7 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6Tp9M-4BMpSUdCYhnfmOnoh4xL1MJjEl4e9mxggr3Imz7nDDxig0aRWOsNMFF0rM/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfybxVm_4uPu6OHElm-7ITLN7zLSbtNnFb6yO_60VNPPfNhXKV9oTcuqxQ9enKa25CgLQj/exec";
         let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
         let currentFilter = "all";
@@ -181,7 +181,6 @@
             if (!l) return;
             document.getElementById('profile-name').innerText = l['Lead Name'];
             
-            // Restoring Contact Person & Decision Maker Role in Profile
             document.getElementById('profile-details').innerHTML = `
                 <div class="grid grid-cols-2 gap-x-4">
                     <div><p class="profile-label">Contact Person</p><p class="profile-value">${l['Contact Person'] || '---'}</p></div>
