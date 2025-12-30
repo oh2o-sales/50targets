@@ -17,7 +17,7 @@
 
     <div id="login-screen" class="hidden fixed inset-0 bg-white z-[500] flex flex-col items-center justify-center p-8 text-center">
         <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-20 mb-8 mx-auto">
-        <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold outline-none mb-4">
+        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold outline-none mb-4">
         <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Access Portal</button>
     </div>
 
@@ -28,7 +28,10 @@
         </header>
 
         <div class="px-5 pt-6 max-w-md mx-auto">
-            <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search targets..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
+            <div class="relative">
+                <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search targets or cities..." class="w-full p-4 pl-12 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm transition-all">
+                <svg class="w-5 h-5 absolute left-4 top-4 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
         </div>
 
         <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
@@ -39,21 +42,22 @@
             <div class="p-8 overflow-y-auto hide-scroll">
                 <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
                 
-                <h2 id="modal-title" class="text-2xl font-black text-slate-800 pr-8 leading-tight"></h2>
+                <h2 id="modal-title" class="text-2xl font-black text-slate-800 leading-tight"></h2>
                 <p id="modal-subtitle" class="text-xs font-bold text-slate-400 uppercase mt-1 mb-6"></p>
 
-                <div class="bg-slate-50 rounded-3xl p-6 mb-8 space-y-4">
-                    <p class="data-label text-blue-600">Complete Profile</p>
-                    <div id="full-profile-content" class="grid grid-cols-1 gap-4 text-sm">
+                <div class="bg-slate-50 rounded-3xl p-5 mb-8 space-y-3">
+                    <p class="data-label text-blue-500">Contact Info</p>
+                    <div id="quick-profile" class="text-sm space-y-2">
                         </div>
                 </div>
 
-                <div class="space-y-5 border-t pt-8">
-                    <p class="data-label text-slate-800">Log New Visit</p>
-                    <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-5 border-t pt-6">
+                    <p class="data-label text-slate-800">Visit & Intelligence Update</p>
+                    
+                    <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1">
                             <label class="data-label">Status</label>
-                            <select id="status-input" class="w-full p-4 bg-slate-100 rounded-2xl font-bold border-none outline-none text-sm appearance-none">
+                            <select id="status-input" class="w-full p-4 bg-slate-100 rounded-xl font-bold border-none outline-none text-sm">
                                 <option value="Active">Active</option>
                                 <option value="Ready for Trial">Ready for Trial</option>
                                 <option value="Trial Installed">Trial Installed</option>
@@ -62,7 +66,7 @@
                         </div>
                         <div class="space-y-1">
                             <label class="data-label">Visit Type</label>
-                            <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-2xl border-none outline-none text-sm appearance-none">
+                            <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-xl border-none outline-none text-sm">
                                 <option value="First Touch">First Touch</option>
                                 <option value="Follow up 1">Follow up 1</option>
                                 <option value="Follow up 2">Follow up 2</option>
@@ -72,19 +76,21 @@
                     </div>
 
                     <div class="space-y-3">
-                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
-                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
+                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
+                        <input type="text" id="purchasing-input" placeholder="Purchasing Dept Contact" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
+                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
                     </div>
 
                     <div class="space-y-1">
-                        <textarea id="note-input" class="w-full h-28 p-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Add visit notes..."></textarea>
+                        <label class="data-label">Visit Notes</label>
+                        <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Details from this visit..."></textarea>
                     </div>
                 </div>
             </div>
 
             <div class="p-8 bg-white border-t flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-2xl text-slate-400 uppercase text-[10px] tracking-widest">Close</button>
-                <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-[10px] tracking-widest">Sync Visit</button>
+                <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400 uppercase text-[10px] tracking-widest">Cancel</button>
+                <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg uppercase text-[10px] tracking-widest">Sync Visit</button>
             </div>
         </div>
     </div>
@@ -109,7 +115,7 @@
                 const response = await fetch(SCRIPT_URL);
                 allLeads = await response.json();
                 renderLeads();
-            } catch (e) { console.error("Fetch Error", e); }
+            } catch (e) { console.error(e); }
         }
 
         function renderLeads() {
@@ -118,16 +124,16 @@
             
             const filtered = allLeads.filter(l => 
                 l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase() &&
-                (l['Lead Name'].toLowerCase().includes(query))
+                (l['Lead Name'].toLowerCase().includes(query) || l['City'].toLowerCase().includes(query))
             );
 
             listDiv.innerHTML = filtered.map(l => `
-                <div onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 transition-all active:scale-95">
+                <div onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 active:scale-95 transition-all">
                     <div class="flex justify-between items-start mb-2">
                         <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                        <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase tracking-wider">${l['Status'] || 'Active'}</span>
+                        <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase tracking-wider shrink-0">${l['Status'] || 'Active'}</span>
                     </div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">${l['Address'] || '---'} • ${l['City'] || ''}</p>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">${l['Address'] || '---'} • ${l['City'] || ''}</p>
                 </div>
             `).join('');
         }
@@ -137,26 +143,16 @@
             document.getElementById('modal-title').innerText = name;
             document.getElementById('modal-subtitle').innerText = `${l['Contact Person']} • ${l['Decision Maker Role']}`;
             
-            // Build the full profile view
-            const profileFields = [
-                { label: 'Phone', val: l['Phone'] },
-                { label: 'Address', val: `${l['Address']}, ${l['City']}, ${l['State']}` },
-                { label: 'Purchasing Dept', val: l['Purchasing Dept'] },
-                { label: 'Last Updated', val: l['Last Updated'] },
-                { label: 'Gatekeeper', val: l['Gatekeeper Name'] },
-                { label: 'Current Solution', val: l['Current Solution'] }
-            ];
+            document.getElementById('quick-profile').innerHTML = `
+                <p><strong>Phone:</strong> ${l['Phone'] || '---'}</p>
+                <p><strong>Address:</strong> ${l['Address']}, ${l['City']}</p>
+                <p><strong>Last Visited:</strong> ${l['Last Updated'] || 'Never'}</p>
+            `;
 
-            document.getElementById('full-profile-content').innerHTML = profileFields.map(f => `
-                <div class="border-b border-slate-200 pb-2">
-                    <p class="data-label" style="font-size: 8px;">${f.label}</p>
-                    <p class="font-bold text-slate-700">${f.val || '---'}</p>
-                </div>
-            `).join('');
-
-            // Reset Form
+            // Prep Inputs
             document.getElementById('status-input').value = l['Status'] || "Active";
             document.getElementById('gk-input').value = l['Gatekeeper Name'] || "";
+            document.getElementById('purchasing-input').value = l['Purchasing Dept'] || "";
             document.getElementById('solution-input').value = l['Current Solution'] || "";
             document.getElementById('note-input').value = "";
             
@@ -173,8 +169,8 @@
                 visitType: document.getElementById('visit-type').value,
                 notes: document.getElementById('note-input').value,
                 gatekeeperName: document.getElementById('gk-input').value,
-                currentSolution: document.getElementById('solution-input').value,
-                dateStamp: new Date().toLocaleDateString() // This handles the date
+                purchasingDept: document.getElementById('purchasing-input').value,
+                currentSolution: document.getElementById('solution-input').value
             };
             
             btn.innerText = "Syncing..."; btn.disabled = true;
@@ -185,7 +181,7 @@
                     fetchLeads();
                     btn.innerText = "Sync Visit"; btn.disabled = false;
                 }, 1000);
-            } catch (e) { alert("Sync Failed"); }
+            } catch (e) { alert("Sync Failed"); btn.innerText = "Sync Visit"; btn.disabled = false; }
         }
 
         function showApp() {
