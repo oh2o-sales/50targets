@@ -10,88 +10,81 @@
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .action-btn:active { transform: scale(0.96); opacity: 0.9; }
-        /* Smooth transition for screens */
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .hide-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="pb-20">
 
-    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8 text-center fade-in">
-        <div class="w-full max-w-xs">
-            <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-20 mb-8 mx-auto" alt="Logo">
-            <h2 class="text-2xl font-black text-slate-800 mb-2">Target Manager</h2>
-            <p class="text-slate-400 text-sm mb-10 font-medium">Internal Sales Portal</p>
-            
-            <div class="space-y-4">
-                <input type="text" id="agent-id-input" placeholder="Enter Agent Name" 
-                    class="w-full p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all">
-                
-                <button onclick="login()" 
-                    class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl shadow-blue-200 uppercase text-xs tracking-widest action-btn transition-all">
-                    Access Portal
-                </button>
-            </div>
-            <p class="mt-8 text-[10px] text-slate-300 font-bold uppercase tracking-widest">Authorized Access Only</p>
-        </div>
+    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[500] flex flex-col items-center justify-center p-8 text-center">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-20 mb-8 mx-auto">
+        <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold outline-none mb-4">
+        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Access Portal</button>
     </div>
 
-    <div id="app-interface" class="hidden fade-in">
+    <div id="app-interface" class="hidden">
         <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
             <h1 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Portal</h1>
             <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase bg-blue-50 px-3 py-1 rounded-full"></div>
         </header>
 
-        <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
-            <div class="text-center py-20 text-slate-400">
-                <div class="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                <p class="text-xs font-bold uppercase tracking-widest">Syncing Data...</p>
-            </div>
+        <div class="px-5 pt-6 max-w-md mx-auto">
+            <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search targets..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500">
         </div>
+
+        <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
     </div>
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-end justify-center">
-        <div class="bg-white rounded-t-[2.5rem] p-8 w-full max-w-md max-h-[92vh] overflow-y-auto shadow-2xl">
-            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800 pr-8"></h2>
-            
-            <div class="space-y-5">
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="data-label">Status</label>
-                        <select id="status-input" class="w-full p-4 bg-slate-50 rounded-2xl font-bold border-none outline-none text-sm appearance-none">
-                            <option value="Active">Active</option>
-                            <option value="Ready for Trial">Ready for Trial</option>
-                            <option value="Trial Installed">Trial Installed</option>
-                            <option value="Closed/Won">Closed/Won</option>
-                        </select>
+        <div class="bg-white rounded-t-[2.5rem] w-full max-w-md max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-8 overflow-y-auto hide-scroll">
+                <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
+                
+                <h2 id="modal-title" class="text-2xl font-black text-slate-800 pr-8 leading-tight"></h2>
+                <p id="modal-subtitle" class="text-xs font-bold text-slate-400 uppercase mt-1 mb-6"></p>
+
+                <div class="bg-slate-50 rounded-3xl p-6 mb-8 space-y-4">
+                    <p class="data-label text-blue-600">Complete Profile</p>
+                    <div id="full-profile-content" class="grid grid-cols-1 gap-4 text-sm">
+                        </div>
+                </div>
+
+                <div class="space-y-5 border-t pt-8">
+                    <p class="data-label text-slate-800">Log New Visit</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="data-label">Status</label>
+                            <select id="status-input" class="w-full p-4 bg-slate-100 rounded-2xl font-bold border-none outline-none text-sm appearance-none">
+                                <option value="Active">Active</option>
+                                <option value="Ready for Trial">Ready for Trial</option>
+                                <option value="Trial Installed">Trial Installed</option>
+                                <option value="Closed/Won">Closed/Won</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="data-label">Visit Type</label>
+                            <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-2xl border-none outline-none text-sm appearance-none">
+                                <option value="First Touch">First Touch</option>
+                                <option value="Follow up 1">Follow up 1</option>
+                                <option value="Follow up 2">Follow up 2</option>
+                                <option value="Follow up 3">Follow up 3</option>
+                            </select>
+                        </div>
                     </div>
+
+                    <div class="space-y-3">
+                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
+                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-2xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
+                    </div>
+
                     <div class="space-y-1">
-                        <label class="data-label">Visit Type</label>
-                        <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-2xl border-none outline-none text-sm appearance-none">
-                            <option value="First Touch">First Touch</option>
-                            <option value="Follow up 1">Follow up 1</option>
-                            <option value="Follow up 2">Follow up 2</option>
-                            <option value="Follow up 3">Follow up 3</option>
-                        </select>
+                        <textarea id="note-input" class="w-full h-28 p-4 bg-slate-100 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Add visit notes..."></textarea>
                     </div>
                 </div>
+            </div>
 
-                <div class="space-y-3">
-                    <label class="data-label">Intelligence Gathering</label>
-                    <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
-                    <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-50 rounded-2xl font-bold outline-none text-sm border border-transparent focus:border-slate-200">
-                </div>
-
-                <div class="space-y-1">
-                    <label class="data-label">Visit Notes</label>
-                    <textarea id="note-input" class="w-full h-28 p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="What happened during this visit?"></textarea>
-                </div>
-
-                <div class="flex gap-3 pt-4">
-                    <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-2xl text-slate-400 action-btn uppercase text-[10px] tracking-widest">Cancel</button>
-                    <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl action-btn uppercase text-[10px] tracking-widest">Sync Visit</button>
-                </div>
+            <div class="p-8 bg-white border-t flex gap-3">
+                <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-2xl text-slate-400 uppercase text-[10px] tracking-widest">Close</button>
+                <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-[10px] tracking-widest">Sync Visit</button>
             </div>
         </div>
     </div>
@@ -102,93 +95,75 @@
         let currentAgent = localStorage.getItem('agentName') || "";
 
         window.onload = () => {
-            if (!currentAgent) {
-                document.getElementById('login-screen').classList.remove('hidden');
-            } else {
-                showApp();
-            }
+            if (!currentAgent) document.getElementById('login-screen').classList.remove('hidden');
+            else showApp();
         };
 
         function login() {
             const val = document.getElementById('agent-id-input').value.trim();
-            if (val) {
-                localStorage.setItem('agentName', val);
-                location.reload();
-            }
+            if (val) { localStorage.setItem('agentName', val); location.reload(); }
         }
 
         async function fetchLeads() {
-            const listDiv = document.getElementById('lead-list');
             try {
                 const response = await fetch(SCRIPT_URL);
                 allLeads = await response.json();
                 renderLeads();
-            } catch (e) {
-                listDiv.innerHTML = `<div class="p-8 bg-red-50 text-red-600 rounded-3xl text-center border-2 border-red-100 font-bold text-xs">CONNECTION FAILED. PLEASE REFRESH.</div>`;
-            }
+            } catch (e) { console.error("Fetch Error", e); }
         }
 
         function renderLeads() {
             const listDiv = document.getElementById('lead-list');
+            const query = document.getElementById('search-input').value.toLowerCase();
+            
             const filtered = allLeads.filter(l => 
-                l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase()
+                l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase() &&
+                (l['Lead Name'].toLowerCase().includes(query))
             );
 
-            if (filtered.length === 0) {
-                listDiv.innerHTML = `
-                    <div class="text-center py-20 px-10">
-                        <p class="font-black text-slate-800 text-lg">No leads found</p>
-                        <p class="text-slate-400 text-xs mt-1 uppercase tracking-widest">Check Agent: ${currentAgent}</p>
-                        <button onclick="localStorage.clear(); location.reload();" class="mt-8 text-blue-600 font-bold text-xs underline">LOG OUT</button>
-                    </div>`;
-                return;
-            }
-
-            listDiv.innerHTML = filtered.map(l => {
-                const phone = l['Phone'] ? l['Phone'].toString().replace(/\D/g,'') : '';
-                const addr = encodeURIComponent(`${l['Address']}, ${l['City']}, ${l['State']}`);
-                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${addr}`;
-
-                return `
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 mb-4 transition-all active:scale-[0.98]">
+            listDiv.innerHTML = filtered.map(l => `
+                <div onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 transition-all active:scale-95">
                     <div class="flex justify-between items-start mb-2">
-                        <h3 class="font-black text-lg text-slate-800 leading-tight pr-4">${l['Lead Name']}</h3>
-                        <span class="text-[9px] font-black px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg uppercase tracking-wider shrink-0">${l['Status'] || 'Active'}</span>
+                        <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
+                        <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase tracking-wider">${l['Status'] || 'Active'}</span>
                     </div>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-5 tracking-tight">${l['Contact Person'] || 'No Contact'} • ${l['Decision Maker Role'] || 'No Role'}</p>
-                    
-                    <div class="grid grid-cols-2 gap-3 mb-5">
-                        <a href="tel:${phone}" class="flex items-center justify-center gap-2 py-4 bg-slate-50 rounded-2xl text-[10px] font-black text-blue-600 uppercase border border-blue-50 action-btn">
-                            Call Office
-                        </a>
-                        <a href="${mapsUrl}" target="_blank" class="flex items-center justify-center gap-2 py-4 bg-slate-50 rounded-2xl text-[10px] font-black text-slate-600 uppercase border border-slate-100 action-btn">
-                            Navigate
-                        </a>
-                    </div>
-
-                    <div onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="bg-slate-900 p-5 rounded-[1.5rem] flex justify-between items-center shadow-lg shadow-slate-200 action-btn cursor-pointer">
-                        <span class="text-white text-[10px] font-black uppercase tracking-widest">Update Visit Info</span>
-                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                    </div>
-                </div>`;
-            }).join('');
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">${l['Address'] || '---'} • ${l['City'] || ''}</p>
+                </div>
+            `).join('');
         }
 
         function openModal(name) {
-            const lead = allLeads.find(l => l['Lead Name'] === name);
+            const l = allLeads.find(lead => lead['Lead Name'] === name);
             document.getElementById('modal-title').innerText = name;
-            document.getElementById('gk-input').value = lead['Gatekeeper Name'] || "";
-            document.getElementById('solution-input').value = lead['Current Solution'] || "";
-            document.getElementById('status-input').value = lead['Status'] || "Active";
+            document.getElementById('modal-subtitle').innerText = `${l['Contact Person']} • ${l['Decision Maker Role']}`;
+            
+            // Build the full profile view
+            const profileFields = [
+                { label: 'Phone', val: l['Phone'] },
+                { label: 'Address', val: `${l['Address']}, ${l['City']}, ${l['State']}` },
+                { label: 'Purchasing Dept', val: l['Purchasing Dept'] },
+                { label: 'Last Updated', val: l['Last Updated'] },
+                { label: 'Gatekeeper', val: l['Gatekeeper Name'] },
+                { label: 'Current Solution', val: l['Current Solution'] }
+            ];
+
+            document.getElementById('full-profile-content').innerHTML = profileFields.map(f => `
+                <div class="border-b border-slate-200 pb-2">
+                    <p class="data-label" style="font-size: 8px;">${f.label}</p>
+                    <p class="font-bold text-slate-700">${f.val || '---'}</p>
+                </div>
+            `).join('');
+
+            // Reset Form
+            document.getElementById('status-input').value = l['Status'] || "Active";
+            document.getElementById('gk-input').value = l['Gatekeeper Name'] || "";
+            document.getElementById('solution-input').value = l['Current Solution'] || "";
             document.getElementById('note-input').value = "";
+            
             document.getElementById('modal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden'; // Stop background scroll
         }
 
-        function closeModal() { 
-            document.getElementById('modal').classList.add('hidden'); 
-            document.body.style.overflow = 'auto';
-        }
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
 
         async function submitUpdate() {
             const btn = document.getElementById('save-btn');
@@ -198,24 +173,19 @@
                 visitType: document.getElementById('visit-type').value,
                 notes: document.getElementById('note-input').value,
                 gatekeeperName: document.getElementById('gk-input').value,
-                currentSolution: document.getElementById('solution-input').value
+                currentSolution: document.getElementById('solution-input').value,
+                dateStamp: new Date().toLocaleDateString() // This handles the date
             };
             
             btn.innerText = "Syncing..."; btn.disabled = true;
             try {
-                // Using no-cors to bypass CORS restrictions for the write action
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-                
-                // Show immediate success and reload list
                 setTimeout(() => {
                     closeModal();
                     fetchLeads();
                     btn.innerText = "Sync Visit"; btn.disabled = false;
-                }, 800);
-            } catch (e) { 
-                alert("Cloud Sync Failed. Check Connection."); 
-                btn.innerText = "Sync Visit"; btn.disabled = false;
-            }
+                }, 1000);
+            } catch (e) { alert("Sync Failed"); }
         }
 
         function showApp() {
