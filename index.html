@@ -8,6 +8,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+        .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .action-btn:active { transform: scale(0.96); opacity: 0.9; }
     </style>
 </head>
@@ -19,17 +20,63 @@
     </header>
 
     <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
-        <div class="text-center py-20 text-slate-400">Updating leads...</div>
+        <div class="text-center py-20 text-slate-400">Loading leads...</div>
+    </div>
+
+    <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end justify-center">
+        <div class="bg-white rounded-t-[2.5rem] p-8 w-full max-w-md max-h-[90vh] overflow-y-auto shadow-2xl">
+            <h2 id="modal-title" class="text-xl font-black mb-6 text-slate-800"></h2>
+            
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="data-label">Status</label>
+                        <select id="status-input" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none text-sm">
+                            <option value="Active">Active</option>
+                            <option value="Ready for Trial">Ready for Trial</option>
+                            <option value="Trial Installed">Trial Installed</option>
+                            <option value="Closed/Won">Closed/Won</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="data-label">Visit Type</label>
+                        <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-xl border-none outline-none text-sm">
+                            <option value="First Touch">First Touch</option>
+                            <option value="Follow up 1">Follow up 1</option>
+                            <option value="Follow up 2">Follow up 2</option>
+                            <option value="Follow up 3">Follow up 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="data-label">New Intel</label>
+                    <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-50 rounded-xl font-bold mb-2 outline-none text-sm">
+                    <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-50 rounded-xl font-bold outline-none text-sm">
+                </div>
+
+                <div class="space-y-1">
+                    <label class="data-label">Visit Notes</label>
+                    <textarea id="note-input" class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500 text-sm" placeholder="Log details here..."></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400 action-btn uppercase text-[10px]">Cancel</button>
+                    <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg action-btn uppercase text-[10px] tracking-widest">Log Visit</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8 text-center">
         <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8 mx-auto">
-        <input type="text" id="agent-id-input" placeholder="Agent Name (e.g. Agent A)" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center mb-4 font-bold outline-none">
+        <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center mb-4 font-bold outline-none">
         <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Enter Portal</button>
     </div>
 
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpA66EukiUsr0a5O1078AbXbBLGjGhi-BiO20OZlr3NHtlk5qhM5aa0Tky4imbZzrL/exec";
+        let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
 
         window.onload = () => {
@@ -39,58 +86,96 @@
 
         function login() {
             const val = document.getElementById('agent-id-input').value.trim();
-            if (val) {
-                localStorage.setItem('agentName', val);
-                location.reload();
-            }
+            if (val) { localStorage.setItem('agentName', val); location.reload(); }
         }
 
         async function fetchLeads() {
             const listDiv = document.getElementById('lead-list');
             try {
                 const response = await fetch(SCRIPT_URL);
-                const data = await response.json();
-                
-                const filtered = data.filter(l => 
-                    l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase()
-                );
-
-                if (filtered.length === 0) {
-                    listDiv.innerHTML = `<div class="text-center py-20 bg-white rounded-3xl border p-6"><p class="font-bold">No leads for "${currentAgent}"</p></div>`;
-                } else {
-                    listDiv.innerHTML = filtered.map(l => {
-                        const addr = `${l['Address']}, ${l['City']}, ${l['State']}`;
-                        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
-                        const phone = l['Phone'] ? l['Phone'].replace(/\D/g,'') : '';
-
-                        return `
-                        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-4">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                                <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase">${l['Status'] || 'Active'}</span>
-                            </div>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${l['Contact Person'] || '---'} • ${l['Decision Maker Role'] || '---'}</p>
-                            
-                            <div class="grid grid-cols-2 gap-3 mb-4">
-                                <a href="tel:${phone}" class="flex items-center justify-center gap-2 py-3 bg-slate-50 rounded-xl text-[10px] font-black text-blue-600 uppercase border border-blue-100 action-btn">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M6.62 10.79a15.15 15.15 0 006.59 6.59l2.2-2.2a1 1 0 011.11-.27 11.72 11.72 0 003.69.59 1 1 0 011 1v3.59a1 1 0 01-1 1A16 16 0 013 4a1 1 0 011-1h3.59a1 1 0 011 1 11.72 11.72 0 00.59 3.69 1 1 0 01-.27 1.11z"/></svg>
-                                    Call
-                                </a>
-                                <a href="${mapsUrl}" target="_blank" class="flex items-center justify-center gap-2 py-3 bg-slate-50 rounded-xl text-[10px] font-black text-slate-600 uppercase border border-slate-200 action-btn">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 110-5 2.5 2.5 0 010 5z"/></svg>
-                                    Navigate
-                                </a>
-                            </div>
-
-                            <div class="bg-blue-600 p-4 rounded-2xl flex justify-between items-center shadow-lg shadow-blue-200 action-btn cursor-pointer">
-                                <span class="text-white text-[10px] font-black uppercase tracking-widest">Update Visit</span>
-                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
-                            </div>
-                        </div>`;
-                    }).join('');
-                }
+                allLeads = await response.json();
+                renderLeads();
             } catch (e) {
-                listDiv.innerHTML = `<div class="bg-red-50 p-6 rounded-2xl text-center border-2 border-red-100"><p class="text-red-600 font-black">Sync Error</p></div>`;
+                listDiv.innerHTML = `<p class='text-center text-red-500'>Connection Error</p>`;
+            }
+        }
+
+        function renderLeads() {
+            const listDiv = document.getElementById('lead-list');
+            const filtered = allLeads.filter(l => 
+                l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase()
+            );
+
+            if (filtered.length === 0) {
+                listDiv.innerHTML = `<div class="text-center py-20"><p class="font-bold">No leads for ${currentAgent}</p></div>`;
+                return;
+            }
+
+            listDiv.innerHTML = filtered.map(l => {
+                const phone = l['Phone'] ? l['Phone'].replace(/\D/g,'') : '';
+                const addr = `${l['Address']}, ${l['City']}, ${l['State']}`;
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
+
+                return `
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
+                        <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase">${l['Status'] || 'Active'}</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${l['Contact Person'] || '---'} • ${l['Decision Maker Role'] || '---'}</p>
+                    
+                    <div class="grid grid-cols-2 gap-3 mb-4">
+                        <a href="tel:${phone}" class="flex items-center justify-center gap-2 py-3 bg-slate-50 rounded-xl text-[10px] font-black text-blue-600 uppercase border border-blue-100 action-btn">Call</a>
+                        <a href="${mapsUrl}" target="_blank" class="flex items-center justify-center gap-2 py-3 bg-slate-50 rounded-xl text-[10px] font-black text-slate-600 uppercase border border-slate-200 action-btn">Navigate</a>
+                    </div>
+
+                    <div onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="bg-blue-600 p-4 rounded-2xl flex justify-between items-center shadow-lg shadow-blue-100 action-btn cursor-pointer">
+                        <span class="text-white text-[10px] font-black uppercase tracking-widest">Update Visit</span>
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function openModal(name) {
+            const lead = allLeads.find(l => l['Lead Name'] === name);
+            document.getElementById('modal-title').innerText = name;
+            document.getElementById('gk-input').value = lead['Gatekeeper Name'] || "";
+            document.getElementById('solution-input').value = lead['Current Solution'] || "";
+            document.getElementById('status-input').value = lead['Status'] || "Active";
+            document.getElementById('note-input').value = "";
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+
+        async function submitUpdate() {
+            const btn = document.getElementById('save-btn');
+            const payload = { 
+                leadName: document.getElementById('modal-title').innerText,
+                status: document.getElementById('status-input').value,
+                visitType: document.getElementById('visit-type').value,
+                notes: document.getElementById('note-input').value,
+                gatekeeperName: document.getElementById('gk-input').value,
+                currentSolution: document.getElementById('solution-input').value
+            };
+            
+            btn.innerText = "Syncing..."; btn.disabled = true;
+            try {
+                const res = await fetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    mode: "no-cors", 
+                    body: JSON.stringify(payload) 
+                });
+                // Note: no-cors mode won't allow us to read 'res.ok', but we assume success if no error is thrown
+                setTimeout(() => {
+                    closeModal();
+                    fetchLeads();
+                    btn.innerText = "Log Visit"; btn.disabled = false;
+                }, 1000);
+            } catch (e) { 
+                alert("Error Syncing."); 
+                btn.innerText = "Log Visit"; btn.disabled = false;
             }
         }
 
