@@ -25,7 +25,7 @@
 
     <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
         <div class="text-center py-20">
-            <p class="text-slate-400 animate-pulse">Connecting to Sheet...</p>
+            <p class="text-slate-400 animate-pulse">Syncing with Google Sheet...</p>
         </div>
     </div>
 
@@ -82,7 +82,7 @@
     </div>
 
     <script>
-        // UPDATED SCRIPT URL
+        // YOUR UPDATED SCRIPT URL FROM IMAGE_14D39C
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpA66EukiUsr0a5O1078AbXbBLGjGhi-BiO20OZlr3NHtlk5qhM5aa0Tky4imbZzrL/exec";
         
         let allLeads = [];
@@ -112,7 +112,7 @@
             } catch (e) {
                 listDiv.innerHTML = `<div class="bg-red-50 p-10 rounded-[2.5rem] border-2 border-red-100 text-center">
                     <p class="font-black text-red-600 text-xs uppercase mb-2">Sync Error</p>
-                    <p class="text-[10px] text-red-400 uppercase leading-relaxed mb-6">Check your Google Script Deployment is set to 'Anyone'</p>
+                    <p class="text-[10px] text-red-400 uppercase leading-relaxed mb-6">The website could not reach your Google Sheet. Please reset the app.</p>
                     <button onclick="localStorage.clear(); location.reload();" class="bg-red-600 text-white px-8 py-4 rounded-2xl font-bold text-xs uppercase shadow-lg">Reset App</button>
                 </div>`;
             }
@@ -122,14 +122,18 @@
             const listDiv = document.getElementById('lead-list');
             const q = document.getElementById('search').value.toLowerCase();
             
-            // Filters based on the 'Agent' column from your sheet
+            // Filters based on the 'Agent' column in your sheet 
             const filtered = allLeads.filter(l => 
                 l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase() &&
                 (l['Lead Name'].toLowerCase().includes(q) || l['Status'].toLowerCase().includes(q))
             );
 
             if (filtered.length === 0) {
-                listDiv.innerHTML = `<p class="text-center py-20 text-slate-400">No leads found for "${currentAgent}"</p>`;
+                listDiv.innerHTML = `<div class="text-center py-20 px-6 bg-white rounded-3xl border">
+                    <p class="font-bold text-slate-800 mb-2">No Leads Found</p>
+                    <p class="text-xs text-slate-400 uppercase leading-relaxed">Agent "${currentAgent}" has no leads assigned in the sheet.</p>
+                    <button onclick="localStorage.clear(); location.reload();" class="mt-4 text-blue-600 font-bold text-[10px] uppercase underline">Try different name</button>
+                </div>`;
                 return;
             }
 
@@ -137,7 +141,7 @@
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
                     <div class="flex justify-between items-start mb-2">
                         <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                        <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase">${l['Status']}</span>
+                        <span class="text-[9px] font-black px-2 py-1 bg-blue-50 text-blue-600 rounded-md uppercase">${l['Status'] || 'Active'}</span>
                     </div>
                     <p class="text-[10px] text-slate-400 font-bold uppercase mb-4">${l['Contact Person'] || 'No Contact'} • ${l['Decision Maker Role'] || 'No Role'}</p>
                     
@@ -185,7 +189,7 @@
                     closeModal();
                     fetchLeads();
                 }
-            } catch (e) { alert("Error syncing."); }
+            } catch (e) { alert("Error syncing update to sheet."); }
             btn.innerText = "Log Visit"; btn.disabled = false;
         }
 
