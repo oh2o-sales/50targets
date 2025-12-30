@@ -9,16 +9,15 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-        .action-btn:active { transform: scale(0.96); opacity: 0.9; }
         .hide-scroll::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="pb-20">
 
-    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[500] flex flex-col items-center justify-center p-8 text-center">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-20 mb-8 mx-auto">
-        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold outline-none mb-4">
-        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Access Portal</button>
+    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[500] flex flex-col items-center justify-center p-8">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8">
+        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold mb-4">
+        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl uppercase text-xs tracking-widest">Access Portal</button>
     </div>
 
     <div id="app-interface" class="hidden">
@@ -27,11 +26,11 @@
                 <h1 class="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Portal</h1>
                 <div id="agent-display" class="text-[10px] text-blue-600 font-black uppercase"></div>
             </div>
-            <button onclick="logout()" class="text-[10px] font-black uppercase tracking-widest text-red-500 bg-red-50 px-4 py-2 rounded-full action-btn">Log Out</button>
+            <button onclick="logout()" class="text-[10px] font-black uppercase text-red-500 bg-red-50 px-4 py-2 rounded-full">Log Out</button>
         </header>
 
         <div class="px-5 pt-6 max-w-md mx-auto">
-            <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search targets..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 shadow-sm">
+            <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search targets..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
         <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
@@ -41,23 +40,20 @@
         <div class="bg-white rounded-t-[2.5rem] w-full max-w-md max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
             <div class="p-8 overflow-y-auto hide-scroll">
                 <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-6"></div>
-                
-                <h2 id="modal-title" class="text-2xl font-black text-slate-800 leading-tight"></h2>
+                <h2 id="modal-title" class="text-2xl font-black text-slate-800"></h2>
                 <p id="modal-subtitle" class="text-xs font-bold text-slate-400 uppercase mt-1 mb-6"></p>
 
                 <div class="bg-slate-50 rounded-3xl p-5 mb-8 space-y-3">
                     <p class="data-label text-blue-500">Company Information</p>
-                    <div id="quick-profile" class="text-sm space-y-2">
-                        </div>
+                    <div id="quick-profile" class="text-sm space-y-2"></div>
                 </div>
 
                 <div class="space-y-5 border-t pt-6">
-                    <p class="data-label text-slate-800">Visit & Intelligence Update</p>
-                    
+                    <p class="data-label text-slate-800">Visit & Intel</p>
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1">
                             <label class="data-label">Status</label>
-                            <select id="status-input" class="w-full p-4 bg-slate-100 rounded-xl font-bold border-none outline-none text-sm">
+                            <select id="status-input" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
                                 <option value="Active">Active</option>
                                 <option value="Ready for Trial">Ready for Trial</option>
                                 <option value="Trial Installed">Trial Installed</option>
@@ -67,7 +63,7 @@
                         </div>
                         <div class="space-y-1">
                             <label class="data-label">Visit Type</label>
-                            <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-xl border-none outline-none text-sm">
+                            <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-xl text-sm outline-none">
                                 <option value="First Touch">First Touch</option>
                                 <option value="Follow up 1">Follow up 1</option>
                                 <option value="Follow up 2">Follow up 2</option>
@@ -79,16 +75,16 @@
                     <div class="space-y-3">
                         <div class="space-y-1">
                             <label class="data-label">Visit Date</label>
-                            <input type="date" id="visit-date" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent">
+                            <input type="date" id="visit-date" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
                         </div>
-                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent">
-                        <input type="text" id="purchasing-input" placeholder="Purchasing Dept" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent">
-                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold outline-none text-sm border border-transparent">
+                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
+                        <input type="text" id="purchasing-input" placeholder="Purchasing Dept" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
+                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
                     </div>
 
                     <div class="space-y-1">
                         <label class="data-label">Visit Notes</label>
-                        <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl border-none outline-none text-sm" placeholder="Enter notes..."></textarea>
+                        <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl text-sm outline-none" placeholder="Enter notes..."></textarea>
                     </div>
                 </div>
             </div>
@@ -101,24 +97,14 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpA66EukiUsr0a5O1078AbXbBLGjGhi-BiO20OZlr3NHtlk5qhM5aa0Tky4imbZzrL/exec"; // Update this with your latest URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpA66EukiUsr0a5O1078AbXbBLGjGhi-BiO20OZlr3NHtlk5qhM5aa0Tky4imbZzrL/exec"; 
         let allLeads = [];
         let currentAgent = localStorage.getItem('agentName') || "";
 
-        window.onload = () => {
-            if (!currentAgent) document.getElementById('login-screen').classList.remove('hidden');
-            else showApp();
-        };
+        window.onload = () => { if (!currentAgent) document.getElementById('login-screen').classList.remove('hidden'); else showApp(); };
 
-        function login() {
-            const val = document.getElementById('agent-id-input').value.trim();
-            if (val) { localStorage.setItem('agentName', val); location.reload(); }
-        }
-
-        function logout() {
-            localStorage.removeItem('agentName');
-            location.reload();
-        }
+        function login() { const val = document.getElementById('agent-id-input').value.trim(); if (val) { localStorage.setItem('agentName', val); location.reload(); } }
+        function logout() { localStorage.removeItem('agentName'); location.reload(); }
 
         async function fetchLeads() {
             try {
@@ -152,7 +138,7 @@
             document.getElementById('modal-title').innerText = name;
             document.getElementById('modal-subtitle').innerText = `${l['Contact Person']} • ${l['Decision Maker Role']}`;
             
-            // Restore Address and Phone View
+            // Restored layout
             document.getElementById('quick-profile').innerHTML = `
                 <p><strong>Phone:</strong> ${l['Phone'] || '---'}</p>
                 <p><strong>Address:</strong> ${l['Address']}, ${l['City']}, ${l['State']}</p>
@@ -185,11 +171,7 @@
             btn.innerText = "Syncing..."; btn.disabled = true;
             try {
                 await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-                setTimeout(() => {
-                    closeModal();
-                    fetchLeads();
-                    btn.innerText = "Sync Visit"; btn.disabled = false;
-                }, 1200);
+                setTimeout(() => { closeModal(); fetchLeads(); btn.innerText = "Sync Visit"; btn.disabled = false; }, 1200);
             } catch (e) { alert("Sync Failed"); btn.innerText = "Sync Visit"; btn.disabled = false; }
         }
 
