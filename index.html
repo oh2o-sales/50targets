@@ -13,7 +13,7 @@
         ::-webkit-scrollbar { width: 0px; background: transparent; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         .profile-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
-        .profile-value { font-size: 15px; font-weight: 700; color: #1e293b; margin-bottom: 16px; }
+        .profile-value { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 12px; }
         #sidebar { transition: transform 0.3s ease-in-out; z-index: 100; }
         .sidebar-open { transform: translateX(0) !important; }
         .note-card { background: #f1f5f9; padding: 14px; border-radius: 16px; border-left: 4px solid #3b82f6; margin-bottom: 10px; }
@@ -61,9 +61,7 @@
         </div>
     </div>
 
-    <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4">
-        <p class="text-center text-slate-400 py-10">Loading targets...</p>
-    </div>
+    <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
 
     <div id="profile-modal" class="hidden fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-[110] flex items-center justify-center p-6">
         <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-sm shadow-2xl max-h-[85vh] overflow-y-auto">
@@ -111,21 +109,21 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="space-y-1">
                         <label class="data-label ml-1">Gatekeeper Name</label>
-                        <input type="text" id="gk-input" placeholder="Enter Name" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                        <input type="text" id="gk-input" placeholder="Name" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
                     </div>
                     <div class="space-y-1">
                         <label class="data-label ml-1">Purchasing Dept</label>
-                        <input type="text" id="purch-input" placeholder="Enter Contact" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                        <input type="text" id="purch-input" placeholder="Contact" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
                     </div>
                 </div>
                 <div class="space-y-1">
                     <label class="data-label ml-1">Current Solution</label>
-                    <input type="text" id="solution-input" placeholder="What are they using now?" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
+                    <input type="text" id="solution-input" placeholder="What are they using?" class="w-full p-4 bg-slate-50 rounded-xl font-bold border-none outline-none">
                 </div>
 
                 <div class="space-y-1">
                     <label class="data-label ml-1 text-blue-600 font-black">Visit Notes</label>
-                    <textarea id="note-input" oninput="validateForm()" placeholder="Briefly summarize the visit..." class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    <textarea id="note-input" oninput="validateForm()" placeholder="Summary of the visit..." class="w-full h-24 p-4 bg-slate-50 rounded-xl border-none outline-none focus:ring-2 focus:ring-blue-500"></textarea>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400 action-btn">Cancel</button>
@@ -137,7 +135,6 @@
 
     <div id="login-screen" class="hidden fixed inset-0 bg-white z-[200] flex flex-col items-center justify-center p-8">
         <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-28 w-auto mb-4" alt="Logo">
-        <h1 class="text-xl font-black text-slate-900 mb-12 uppercase tracking-widest text-center">Top 50 Targets Portal</h1>
         <div class="w-full max-w-xs bg-white border border-slate-100 p-8 rounded-[2.5rem] shadow-xl text-center">
             <input type="text" id="agent-id-input" placeholder="Agent Name" class="w-full p-5 rounded-2xl bg-slate-50 border-none text-center mb-4 outline-none font-bold">
             <button onclick="login()" class="w-full py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase tracking-widest text-xs action-btn">Enter Portal</button>
@@ -166,8 +163,7 @@
                 allLeads = data.filter(l => l['Agent']?.toString().trim().toUpperCase() === currentAgent.toUpperCase());
                 renderLeads();
             } catch (e) { 
-                console.error("Fetch Error:", e);
-                document.getElementById('lead-list').innerHTML = `<p class="text-center text-red-500 font-bold p-10">Error loading data. Please refresh.</p>`;
+                document.getElementById('lead-list').innerHTML = `<p class="text-center text-red-500 font-bold p-10">Sync Error. Refresh app.</p>`;
             }
         }
 
@@ -175,14 +171,8 @@
         function toggleSort() { sortByLastUpdated = !sortByLastUpdated; document.getElementById('sort-btn').classList.toggle('sort-active'); renderLeads(); }
 
         function setView(view) { 
-            currentFilter = view; 
-            toggleMenu(); 
-            const items = document.querySelectorAll('.nav-item');
-            items.forEach(item => { item.classList.remove('bg-blue-50', 'text-blue-600'); item.classList.add('text-slate-600'); });
-            const activeMap = { 'all': 0, 'trials': 1, 'won': 2, 'lost': 3 };
-            const activeBtn = items[activeMap[view]];
-            activeBtn.classList.add('bg-blue-50', 'text-blue-600');
-            activeBtn.classList.remove('text-slate-600');
+            currentFilter = view; toggleMenu(); 
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('bg-blue-50', 'text-blue-600'));
             renderLeads(); 
         }
 
@@ -190,17 +180,21 @@
             const l = allLeads.find(lead => lead['Lead Name'] === name);
             if (!l) return;
             document.getElementById('profile-name').innerText = l['Lead Name'];
-            const displayPhone = l['Phone'] || 'No Phone';
-            const fullAddr = `${l['Address'] || ''}, ${l['City'] || ''}, ${l['State'] || ''}`.replace(/^, /, '');
-
+            
+            // Restoring Contact Person & Decision Maker Role in Profile
             document.getElementById('profile-details').innerHTML = `
-                <p class="profile-label">Main Contact Details</p>
-                <p class="profile-value">${displayPhone} • ${l['Address'] || '---'}</p>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-x-4">
+                    <div><p class="profile-label">Contact Person</p><p class="profile-value">${l['Contact Person'] || '---'}</p></div>
+                    <div><p class="profile-label">Role</p><p class="profile-value">${l['Decision Maker Role'] || '---'}</p></div>
+                </div>
+                <p class="profile-label">Phone & Address</p>
+                <p class="profile-value">${l['Phone'] || '---'} • ${l['Address'] || ''}</p>
+                <div class="grid grid-cols-2 gap-x-4 border-t pt-4">
                     <div><p class="profile-label">Gatekeeper</p><p class="profile-value">${l['Gatekeeper Name'] || '---'}</p></div>
                     <div><p class="profile-label">Purchasing</p><p class="profile-value">${l['Purchasing Dept'] || '---'}</p></div>
                 </div>
-                <div><p class="profile-label">Current Solution</p><p class="profile-value">${l['Current Solution'] || '---'}</p></div>
+                <p class="profile-label">Current Solution</p>
+                <p class="profile-value">${l['Current Solution'] || '---'}</p>
             `;
             
             const noteKeys = ['First Touch Notes', 'Follow up 1 Notes', 'Follow up 2 Notes', 'Follow up 3 Notes'];
@@ -212,7 +206,7 @@
                     notesHtml += `<div class="note-card"><p class="text-[9px] font-black text-blue-500 uppercase mb-1">${dateKeys[index]} (${d})</p><p class="text-sm text-slate-700 font-medium">"${l[key]}"</p></div>`;
                 }
             });
-            document.getElementById('notes-history').innerHTML = notesHtml || '<p class="text-center text-slate-300 py-4 font-bold italic text-sm">No notes recorded yet.</p>';
+            document.getElementById('notes-history').innerHTML = notesHtml || '<p class="text-center text-slate-300 py-4 italic text-sm">No visit notes.</p>';
             document.getElementById('profile-modal').classList.remove('hidden');
         }
 
@@ -234,16 +228,11 @@
                 filtered.sort((a, b) => {
                     const aDates = [cleanDate(a['First Touch']), cleanDate(a['Follow up 1']), cleanDate(a['Follow up 2']), cleanDate(a['Follow up 3']), cleanDate(a['Last Updated'])].filter(d => d !== null);
                     const bDates = [cleanDate(b['First Touch']), cleanDate(b['Follow up 1']), cleanDate(b['Follow up 2']), cleanDate(b['Follow up 3']), cleanDate(b['Last Updated'])].filter(d => d !== null);
-                    const aMax = aDates.length > 0 ? Math.max(...aDates) : 0;
-                    const bMax = bDates.length > 0 ? Math.max(...bDates) : 0;
-                    return bMax - aMax;
+                    return (bDates.length > 0 ? Math.max(...bDates) : 0) - (aDates.length > 0 ? Math.max(...aDates) : 0);
                 });
             } else { filtered.sort((a, b) => a['Lead Name'].localeCompare(b['Lead Name'])); }
 
-            const container = document.getElementById('lead-list');
-            if (filtered.length === 0) { container.innerHTML = `<p class="text-center text-slate-400 py-10 font-bold">No targets found.</p>`; return; }
-
-            container.innerHTML = filtered.map(l => {
+            document.getElementById('lead-list').innerHTML = filtered.map(l => {
                 const dates = [cleanDate(l['First Touch']), cleanDate(l['Follow up 1']), cleanDate(l['Follow up 2']), cleanDate(l['Follow up 3']), cleanDate(l['Last Updated'])].filter(d => d !== null);
                 const lastActivity = dates.length > 0 ? new Date(Math.max(...dates)) : null;
                 const geoAddr = `${l['Address'] || ''}, ${l['City'] || ''}, ${l['State'] || ''}`.trim();
@@ -252,19 +241,14 @@
                     <div class="flex justify-between items-start mb-4">
                         <div class="flex-1 cursor-pointer" onclick="openProfile('${l['Lead Name'].replace(/'/g, "\\'")}')">
                             <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${geoAddr}</p>
+                            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">${l['Contact Person'] || 'No Contact'} • ${l['Decision Maker Role'] || 'No Role'}</p>
                         </div>
-                        <div class="flex gap-2">
-                            <a href="https://maps.apple.com/?q=${encodeURIComponent(geoAddr)}" class="bg-blue-50 p-3 rounded-full text-blue-600 action-btn">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"></path></svg>
-                            </a>
-                            <a href="tel:${l['Phone'] || ''}" class="bg-green-50 p-3 rounded-full text-green-600 action-btn">
-                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
-                            </a>
-                        </div>
+                        <a href="https://maps.apple.com/?q=${encodeURIComponent(geoAddr)}" class="bg-blue-50 p-3 rounded-full text-blue-600 action-btn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-width="2"></path></svg>
+                        </a>
                     </div>
                     <div class="bg-slate-50 p-4 rounded-2xl mb-5 flex justify-between items-center">
-                        <div><p class="data-label">Last Activity</p><p class="text-[10px] font-bold text-blue-600">${formatDateUI(lastActivity)}</p></div>
+                        <div><p class="data-label">Activity</p><p class="text-[10px] font-bold text-blue-600">${formatDateUI(lastActivity)}</p></div>
                         <div class="text-right"><p class="data-label">Status</p><p class="text-[10px] font-bold text-slate-600">${l['Status'] || 'Active'}</p></div>
                     </div>
                     <button onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="w-full py-4 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg action-btn">Update Visit</button>
@@ -302,7 +286,7 @@
             try {
                 await fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
                 closeModal(); fetchLeads();
-            } catch (e) { alert("Update failed. Check connection."); btn.innerText = "Log Visit"; btn.disabled = false; }
+            } catch (e) { alert("Error syncing."); btn.innerText = "Log Visit"; btn.disabled = false; }
         }
     </script>
 </body>
