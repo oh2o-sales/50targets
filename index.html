@@ -24,7 +24,7 @@
     </div>
 
     <div class="p-4">
-        <input type="text" id="search" oninput="render()" placeholder="Search leads..." class="w-full p-4 rounded-xl border-none shadow-sm outline-none">
+        <input type="text" id="search" oninput="render()" placeholder="Search leads..." class="w-full p-4 rounded-xl border shadow-sm outline-none">
     </div>
 
     <div id="list" class="p-4 space-y-4"></div>
@@ -51,11 +51,11 @@
                     <option value="Trial Installed">Trial Installed</option>
                     <option value="Closed/Won">Closed/Won</option>
                 </select>
-                <input type="email" id="m-email" placeholder="Email" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
-                <input type="text" id="m-gk" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
-                <input type="text" id="m-purch" placeholder="Purchasing Dept" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
-                <input type="text" id="m-sol" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
-                <textarea id="m-notes" placeholder="Notes" class="w-full p-4 bg-slate-100 rounded-xl h-24 font-bold"></textarea>
+                <input type="email" id="m-email" placeholder="Email" class="w-full p-4 bg-slate-100 rounded-xl">
+                <input type="text" id="m-gk" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl">
+                <input type="text" id="m-purch" placeholder="Purchasing Dept" class="w-full p-4 bg-slate-100 rounded-xl">
+                <input type="text" id="m-sol" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl">
+                <textarea id="m-notes" placeholder="Notes" class="w-full p-4 bg-slate-100 rounded-xl h-24"></textarea>
                 <div class="flex gap-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-200 rounded-xl font-bold">Cancel</button>
                     <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white rounded-xl font-black">SYNC</button>
@@ -65,7 +65,8 @@
     </div>
 
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2vcAOTngFw3xHXW_jq7qLVlyAVs-7KC3POWWbYPcy6bZnusmIeUcUPOO1smOAUE5O/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypJPT487h1y374j8O9xieSkDqSM0HWFGUdF2eZSV4FxuZMyyYtLz0wmBy5z75vQ6ml/exec";
+        
         let data = [];
         let agent = localStorage.getItem('agent') || "";
         let filter = "Active";
@@ -80,27 +81,39 @@
 
         async function load() {
             document.getElementById('display-agent').innerText = agent;
-            const res = await fetch(SCRIPT_URL);
-            data = await res.json();
-            render();
+            try {
+                const res = await fetch(SCRIPT_URL);
+                data = await res.json();
+                render();
+            } catch (e) {
+                console.error("Load failed", e);
+                alert("Failed to load leads. Check your SCRIPT_URL.");
+            }
         }
 
         function render() {
             const query = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('list');
+            
+            // Filters based on Agent, Status, and Search Name
             const filtered = data.filter(l => 
-                l.Agent.toString().toUpperCase() === agent.toUpperCase() && 
-                l.Status === filter &&
-                l['Lead Name'].toLowerCase().includes(query)
+                (l.Agent || "").toString().toUpperCase() === agent.toUpperCase() && 
+                (l.Status || "") === filter &&
+                (l['Lead Name'] || "").toLowerCase().includes(query)
             );
+
+            if(filtered.length === 0) {
+                list.innerHTML = `<p class='text-center text-slate-400 mt-10'>No leads found.</p>`;
+                return;
+            }
 
             list.innerHTML = filtered.map(l => `
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
                     <h3 onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="font-black text-lg cursor-pointer">${l['Lead Name']}</h3>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase">${l.Address} • ${l.City}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">${l.Address || ''} • ${l.City || ''}</p>
                     <div class="flex gap-2 mt-4">
                         <a href="tel:${l.Phone}" class="flex-1 py-3 bg-blue-50 text-blue-600 rounded-xl text-center text-[10px] font-black">CALL</a>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l['Lead Name'] + ' ' + l.Address)}" target="_blank" class="flex-1 py-3 bg-slate-50 text-slate-600 rounded-xl text-center text-[10px] font-black border">GPS</a>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l['Lead Name'] + ' ' + (l.Address || ''))}" target="_blank" class="flex-1 py-3 bg-slate-50 text-slate-600 rounded-xl text-center text-[10px] font-black border">GPS</a>
                     </div>
                 </div>
             `).join('');
@@ -109,7 +122,7 @@
         function openModal(name) {
             const l = data.find(x => x['Lead Name'] === name);
             document.getElementById('m-title').innerText = name;
-            document.getElementById('m-status').value = l.Status;
+            document.getElementById('m-status').value = l.Status || "Active";
             document.getElementById('m-email').value = l.Email || "";
             document.getElementById('m-gk').value = l['Gatekeeper Name'] || "";
             document.getElementById('m-purch').value = l['Purchasing Dept'] || "";
@@ -131,7 +144,7 @@
                 notes: document.getElementById('m-notes').value
             };
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            setTimeout(() => location.reload(), 1000);
+            setTimeout(() => location.reload(), 1200);
         }
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
