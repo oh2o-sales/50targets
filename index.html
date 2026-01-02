@@ -1,176 +1,142 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Target Portal</title>
+    <title>Sales Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
-        .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-        #sidebar { transition: transform 0.3s ease-in-out; z-index: 600; width: 280px; }
-        .sidebar-open { transform: translateX(0) !important; }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 550; }
-    </style>
 </head>
-<body class="pb-20">
+<body class="bg-slate-50 pb-10">
 
-    <div id="login-screen" class="fixed inset-0 bg-white z-[700] flex flex-col items-center justify-center p-8 text-center hidden">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8" alt="Logo">
-        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold mb-4 outline-none">
-        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Access Portal</button>
+    <div id="login-screen" class="fixed inset-0 bg-white z-[999] flex flex-col items-center justify-center p-6 text-center">
+        <h1 class="text-2xl font-black mb-6">TARGET PORTAL</h1>
+        <input type="text" id="agent-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-4 border rounded-xl mb-4 text-center font-bold">
+        <button onclick="login()" class="w-full max-w-xs py-4 bg-blue-600 text-white font-bold rounded-xl">LOGIN</button>
     </div>
 
-    <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
-
-    <div id="sidebar" class="fixed top-0 left-0 h-full bg-slate-900 text-white p-6 -translate-x-full shadow-2xl overflow-y-auto">
-        <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6">Pipeline</h2>
-        <nav class="space-y-1">
-            <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
-            <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
-            <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
-            <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
-        </nav>
-        <button onclick="logout()" class="mt-12 w-full p-4 bg-red-900/20 rounded-xl text-xs font-black uppercase text-red-400">Log Out</button>
-    </div>
-
-    <div id="app-interface">
-        <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
-            <button onclick="toggleMenu()" class="p-2"><svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
-            <div class="text-center">
-                <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Leads</h1>
-                <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase"></div>
-            </div>
-            <div class="w-10"></div>
-        </header>
-
-        <div class="px-5 pt-6 max-w-md mx-auto">
-            <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search leads..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none">
+    <div class="bg-white p-5 border-b sticky top-0 flex justify-between items-center shadow-sm">
+        <button onclick="toggleSidebar()" class="font-bold text-blue-600">MENU</button>
+        <div class="text-center">
+            <div id="display-agent" class="text-[10px] font-black text-blue-600 uppercase"></div>
+            <div id="display-filter" class="text-xs font-bold text-slate-400">Active</div>
         </div>
-
-        <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
+        <div class="w-10"></div>
     </div>
 
-    <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-end justify-center">
-        <div class="bg-white rounded-t-[2.5rem] w-full max-w-md max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
-            <div class="p-8 overflow-y-auto">
-                <h2 id="modal-title" class="text-2xl font-black text-slate-800 mb-6"></h2>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="data-label">Status</label>
-                        <select id="status-input" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
-                            <option value="Active">Active</option>
-                            <option value="Ready for Trial">Ready for Trial</option>
-                            <option value="Trial Installed">Trial Installed</option>
-                            <option value="Closed/Won">Closed/Won</option>
-                        </select>
-                    </div>
+    <div class="p-4">
+        <input type="text" id="search" oninput="render()" placeholder="Search leads..." class="w-full p-4 rounded-xl border-none shadow-sm outline-none">
+    </div>
 
-                    <input type="email" id="email-input" placeholder="Decision Maker Email" class="w-full p-4 bg-slate-100 rounded-xl text-sm font-bold">
-                    <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl text-sm font-bold">
-                    <input type="text" id="purchasing-input" placeholder="Purchasing Contact" class="w-full p-4 bg-slate-100 rounded-xl text-sm font-bold">
-                    <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl text-sm font-bold">
-                    <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl text-sm font-bold" placeholder="Notes..."></textarea>
+    <div id="list" class="p-4 space-y-4"></div>
+
+    <div id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-slate-900 text-white p-6 transform -translate-x-full transition-transform z-[500]">
+        <h2 class="font-black mb-6 text-slate-500">PIPELINE</h2>
+        <div class="space-y-4">
+            <button onclick="setFilter('Active')" class="block w-full text-left font-bold">Active</button>
+            <button onclick="setFilter('Ready for Trial')" class="block w-full text-left font-bold text-blue-400">Ready for Trial</button>
+            <button onclick="setFilter('Trial Installed')" class="block w-full text-left font-bold text-blue-300">Trial Installed</button>
+            <button onclick="setFilter('Closed/Won')" class="block w-full text-left font-bold text-green-400">Closed-Win</button>
+            <hr class="border-slate-800">
+            <button onclick="logout()" class="block w-full text-left font-bold text-red-400">Log Out</button>
+        </div>
+    </div>
+
+    <div id="modal" class="fixed inset-0 bg-black/50 z-[600] hidden flex items-end">
+        <div class="bg-white w-full rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto">
+            <h2 id="m-title" class="text-xl font-black mb-4"></h2>
+            <div class="space-y-4">
+                <select id="m-status" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                    <option value="Active">Active</option>
+                    <option value="Ready for Trial">Ready for Trial</option>
+                    <option value="Trial Installed">Trial Installed</option>
+                    <option value="Closed/Won">Closed/Won</option>
+                </select>
+                <input type="email" id="m-email" placeholder="Email" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                <input type="text" id="m-gk" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                <input type="text" id="m-purch" placeholder="Purchasing Dept" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                <input type="text" id="m-sol" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                <textarea id="m-notes" placeholder="Notes" class="w-full p-4 bg-slate-100 rounded-xl h-24 font-bold"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="closeModal()" class="flex-1 py-4 bg-slate-200 rounded-xl font-bold">Cancel</button>
+                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white rounded-xl font-black">SYNC</button>
                 </div>
-            </div>
-
-            <div class="p-8 bg-white border-t flex gap-3">
-                <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 font-bold rounded-xl text-slate-400 uppercase text-[10px]">Cancel</button>
-                <button id="save-btn" onclick="submitUpdate()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg uppercase text-[10px]">Sync</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- REPLACE THE URL BELOW WITH YOUR SCRIPT URL ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbylNkK6RS7B-7pyH4TXMs2eQsTqIdmDpukyVEHGhR6tfVjy-ClDQmX7aGmpldMPUGq4/exec"; 
-        
-        let allLeads = [];
-        let currentAgent = localStorage.getItem('agentName') || "";
-        let currentStatusFilter = "Active";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby2vcAOTngFw3xHXW_jq7qLVlyAVs-7KC3POWWbYPcy6bZnusmIeUcUPOO1smOAUE5O/exec";
+        let data = [];
+        let agent = localStorage.getItem('agent') || "";
+        let filter = "Active";
 
-        window.onload = () => {
-            if (!currentAgent) {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('app-interface').classList.add('hidden');
-            } else {
-                document.getElementById('agent-display').innerText = currentAgent;
-                fetchLeads();
-            }
-        };
+        if(agent) { document.getElementById('login-screen').style.display = 'none'; load(); }
 
         function login() {
-            const val = document.getElementById('agent-id-input').value.trim();
-            if (val) { localStorage.setItem('agentName', val); location.reload(); }
+            let val = document.getElementById('agent-input').value.trim();
+            if(val) { localStorage.setItem('agent', val); location.reload(); }
+        }
+        function logout() { localStorage.removeItem('agent'); location.reload(); }
+
+        async function load() {
+            document.getElementById('display-agent').innerText = agent;
+            const res = await fetch(SCRIPT_URL);
+            data = await res.json();
+            render();
         }
 
-        function logout() { localStorage.removeItem('agentName'); location.reload(); }
-
-        async function fetchLeads() {
-            try {
-                const response = await fetch(SCRIPT_URL);
-                allLeads = await response.json();
-                renderLeads();
-            } catch (e) { console.error("Load failed", e); }
-        }
-
-        function toggleMenu() { document.getElementById('sidebar').classList.toggle('sidebar-open'); document.getElementById('overlay').classList.toggle('block'); }
-        function setFilter(s) { currentStatusFilter = s; document.getElementById('view-title').innerText = s; renderLeads(); toggleMenu(); }
-
-        function renderLeads() {
-            const listDiv = document.getElementById('lead-list');
-            const query = document.getElementById('search-input').value.toLowerCase();
-            const filtered = allLeads.filter(l => 
-                (l.Agent || "").toString().toUpperCase() === currentAgent.toUpperCase() &&
-                (l.Status || "") === currentStatusFilter && 
-                (l['Lead Name'] || "").toLowerCase().includes(query)
+        function render() {
+            const query = document.getElementById('search').value.toLowerCase();
+            const list = document.getElementById('list');
+            const filtered = data.filter(l => 
+                l.Agent.toString().toUpperCase() === agent.toUpperCase() && 
+                l.Status === filter &&
+                l['Lead Name'].toLowerCase().includes(query)
             );
 
-            listDiv.innerHTML = filtered.map(l => `
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                    <h3 onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="font-black text-lg text-slate-800 cursor-pointer">${l['Lead Name']}</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">${l.Address || ''} • ${l.City || ''}</p>
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <a href="tel:${l.Phone}" class="py-3 bg-blue-50 rounded-xl text-[10px] font-black text-blue-600 text-center uppercase">Call</a>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l['Lead Name'] + ' ' + l.Address)}" target="_blank" class="py-3 bg-slate-50 rounded-xl text-[10px] font-black text-slate-600 text-center uppercase border border-slate-100">GPS</a>
+            list.innerHTML = filtered.map(l => `
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <h3 onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="font-black text-lg cursor-pointer">${l['Lead Name']}</h3>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase">${l.Address} • ${l.City}</p>
+                    <div class="flex gap-2 mt-4">
+                        <a href="tel:${l.Phone}" class="flex-1 py-3 bg-blue-50 text-blue-600 rounded-xl text-center text-[10px] font-black">CALL</a>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l['Lead Name'] + ' ' + l.Address)}" target="_blank" class="flex-1 py-3 bg-slate-50 text-slate-600 rounded-xl text-center text-[10px] font-black border">GPS</a>
                     </div>
-                </div>`).join('');
+                </div>
+            `).join('');
         }
 
         function openModal(name) {
-            const l = allLeads.find(lead => lead['Lead Name'] === name);
-            if(!l) return;
-            document.getElementById('modal-title').innerText = name;
-            document.getElementById('status-input').value = l.Status || "Active";
-            document.getElementById('email-input').value = l.Email || "";
-            document.getElementById('gk-input').value = l['Gatekeeper Name'] || "";
-            document.getElementById('purchasing-input').value = l['Purchasing Dept'] || "";
-            document.getElementById('solution-input').value = l['Current Solution'] || "";
-            document.getElementById('note-input').value = l.Notes || "";
-            document.getElementById('modal').classList.remove('hidden');
+            const l = data.find(x => x['Lead Name'] === name);
+            document.getElementById('m-title').innerText = name;
+            document.getElementById('m-status').value = l.Status;
+            document.getElementById('m-email').value = l.Email || "";
+            document.getElementById('m-gk').value = l['Gatekeeper Name'] || "";
+            document.getElementById('m-purch').value = l['Purchasing Dept'] || "";
+            document.getElementById('m-sol').value = l['Current Solution'] || "";
+            document.getElementById('m-notes').value = l.Notes || "";
+            document.getElementById('modal').style.display = 'flex';
         }
 
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-
-        async function submitUpdate() {
-            const btn = document.getElementById('save-btn');
-            const payload = { 
-                leadName: document.getElementById('modal-title').innerText,
-                status: document.getElementById('status-input').value,
-                email: document.getElementById('email-input').value,
-                gatekeeperName: document.getElementById('gk-input').value,
-                purchasingDept: document.getElementById('purchasing-input').value,
-                currentSolution: document.getElementById('solution-input').value,
-                notes: document.getElementById('note-input').value
+        async function sync() {
+            const btn = document.getElementById('sync-btn');
+            btn.innerText = "SYNCING..."; btn.disabled = true;
+            const payload = {
+                leadName: document.getElementById('m-title').innerText,
+                status: document.getElementById('m-status').value,
+                email: document.getElementById('m-email').value,
+                gatekeeperName: document.getElementById('m-gk').value,
+                purchasingDept: document.getElementById('m-purch').value,
+                currentSolution: document.getElementById('m-sol').value,
+                notes: document.getElementById('m-notes').value
             };
-            btn.innerText = "Syncing..."; btn.disabled = true;
-            try {
-                await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-                setTimeout(() => { location.reload(); }, 1200);
-            } catch (e) { alert("Sync Failed"); btn.disabled = false; }
+            await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            setTimeout(() => location.reload(), 1000);
         }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('-translate-x-full'); }
+        function setFilter(s) { filter = s; document.getElementById('display-filter').innerText = s; toggleSidebar(); render(); }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
     </script>
 </body>
 </html>
