@@ -3,36 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Top 50 Targets Portal</title>
+    <title>Targets Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: #ffffff; margin: 0; padding: 0; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-        #sidebar { transition: transform 0.3s ease-in-out; z-index: 600; width: 280px; }
+        #sidebar { transition: transform 0.3s ease-in-out; z-index: 600; width: 280px; background-color: #0f172a; }
         .sidebar-open { transform: translateX(0) !important; }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 550; }
-        .profile-card { background: #f1f5f9; padding: 12px; border-radius: 16px; border: 1px solid #e2e8f0; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(2px); z-index: 550; }
+        .profile-card { background: #f8fafc; padding: 12px; border-radius: 16px; border: 1px solid #e2e8f0; }
         
-        /* THE ORIGINAL LANDING PAGE STYLE */
-        #landing-page { position: fixed; inset: 0; background: #0f172a; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; }
-        .logo-container { margin-bottom: 2rem; }
+        /* SIMPLE WHITE LANDING PAGE */
+        #landing-page { position: fixed; inset: 0; background: #ffffff; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body class="pb-20">
 
     <div id="landing-page">
-        <div class="logo-container">
-            <img src="https://i.ibb.co/p6VjR8q/OH2-O-LOGO-WHITE.png" alt="Logo" class="w-48 mx-auto mb-6">
-            <h1 class="text-white font-black text-3xl uppercase tracking-tighter">Top 50 Targets</h1>
-            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-[0.3em] mt-2">Field Sales Portal</p>
-        </div>
-        <button onclick="enterPortal()" class="w-full max-w-xs py-5 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs shadow-2xl active:scale-95 transition-transform">Enter Portal</button>
+        <img src="https://i.ibb.co/p6VjR8q/OH2-O-LOGO-WHITE.png" alt="Logo" class="w-32 mb-8" style="filter: invert(1);"> 
+        <h1 class="text-slate-800 font-black text-3xl uppercase tracking-tighter">Targets Portal</h1>
+        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mt-2 mb-10">Field Sales Access</p>
+        <button onclick="enterPortal()" class="w-64 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs shadow-lg active:scale-95 transition-all">Enter Portal</button>
     </div>
 
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-    <div id="sidebar" class="fixed top-0 left-0 h-full bg-[#0f172a] text-white p-6 -translate-x-full shadow-2xl flex flex-col">
+    <div id="sidebar" class="fixed top-0 left-0 h-full text-white p-6 -translate-x-full shadow-2xl flex flex-col">
         <div class="flex-grow">
             <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6">Pipeline</h2>
             <nav class="space-y-1">
@@ -43,23 +40,25 @@
                 <button onclick="setFilter('Closed/Lost')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-red-400">Closed-Lost</button>
             </nav>
         </div>
-        <div class="pt-6 border-t border-white/10">
-            <button onclick="logout()" class="w-full py-4 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-colors">Log Out / Switch</button>
+        
+        <div class="pt-6 border-t border-slate-800">
+            <button onclick="logout()" class="w-full p-4 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white">Log Out</button>
         </div>
     </div>
 
-    <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
-        <button onclick="toggleSidebar()" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
-        <div class="text-center">
-            <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Leads</h1>
-        </div>
-        <div class="w-10"></div>
-    </header>
+    <div id="app-interface" class="hidden">
+        <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
+            <button onclick="toggleSidebar()" class="p-2 text-slate-800"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+            <div class="text-center">
+                <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Leads</h1>
+            </div>
+            <div class="w-10"></div>
+        </header>
 
-    <div id="app-content" class="hidden">
         <div class="px-5 pt-6 max-w-md mx-auto">
-            <input type="text" id="search" oninput="render()" placeholder="Search..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none font-medium">
+            <input type="text" id="search" oninput="render()" placeholder="Search targets..." class="w-full p-4 rounded-2xl bg-slate-50 border border-slate-200 outline-none font-medium">
         </div>
+
         <div id="list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
     </div>
 
@@ -71,25 +70,26 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div class="profile-card"><label class="data-label">Phone</label><p id="p-phone" class="text-xs font-bold text-slate-700"></p></div>
                     <div class="profile-card"><label class="data-label">Contact Person</label><p id="p-contact" class="text-xs font-bold text-slate-700"></p></div>
-                    <div class="profile-card col-span-2"><label class="data-label">Contact Person's Role</label><p id="p-role" class="text-xs font-bold text-slate-700"></p></div>
+                    <div class="profile-card col-span-2"><label class="data-label">Role</label><p id="p-role" class="text-xs font-bold text-slate-700"></p></div>
                 </div>
             </div>
+            
             <div class="space-y-5 border-t pt-6">
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="data-label">Current Status</label><select id="m-status" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"><option value="Active">Active</option><option value="Ready for Trial">Ready for Trial</option><option value="Trial Installed">Trial Installed</option><option value="Closed/Won">Closed/Won</option><option value="Closed/Lost">Closed/Lost</option></select></div>
-                    <div><label class="data-label">Log Visit As</label><select id="m-visit" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm"><option value="First Touch">First Touch</option><option value="Follow up 1">Follow up 1</option><option value="Follow up 2">Follow up 2</option><option value="Follow up 3">Follow up 3</option></select></div>
+                    <div><label class="data-label">Status</label><select id="m-status" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"><option value="Active">Active</option><option value="Ready for Trial">Ready for Trial</option><option value="Trial Installed">Trial Installed</option><option value="Closed/Won">Closed/Won</option><option value="Closed/Lost">Closed/Lost</option></select></div>
+                    <div><label class="data-label">Log Visit</label><select id="m-visit" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm"><option value="First Touch">First Touch</option><option value="Follow up 1">Follow up 1</option><option value="Follow up 2">Follow up 2</option><option value="Follow up 3">Follow up 3</option></select></div>
                 </div>
-                <div><label class="data-label">Visit Date</label><input type="date" id="m-date" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm"></div>
+                <div><label class="data-label">Date</label><input type="date" id="m-date" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm"></div>
                 <div class="space-y-4">
-                    <div><label class="data-label">1- Decision Maker Name</label><input type="text" id="m-gk" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
-                    <div><label class="data-label">2- Decision Maker Email</label><input type="email" id="m-email" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
-                    <div><label class="data-label">3- Purchasing Department</label><input type="text" id="m-purch" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
-                    <div><label class="data-label">4- Current Water Solution</label><select id="m-sol" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"><option value="None">None</option><option value="Bottles">Bottles (5-Gallon)</option><option value="Pantry/Distributor">Pantry/Distributor</option><option value="Competitor POE">Competitor POE</option><option value="Tap/Fountain">Tap/Fountain</option></select></div>
-                    <textarea id="m-notes" placeholder="Add visit notes here..." class="w-full h-24 p-4 bg-slate-100 rounded-xl font-bold text-sm"></textarea>
+                    <div><label class="data-label">1- DM Name</label><input type="text" id="m-gk" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
+                    <div><label class="data-label">2- DM Email</label><input type="email" id="m-email" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
+                    <div><label class="data-label">3- Purchasing Dept</label><input type="text" id="m-purch" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
+                    <div><label class="data-label">4- Current Solution</label><select id="m-sol" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"><option value="None">None</option><option value="Bottles">Bottles</option><option value="Pantry">Pantry</option><option value="Competitor POE">Competitor POE</option></select></div>
+                    <textarea id="m-notes" placeholder="Visit notes..." class="w-full h-24 p-4 bg-slate-100 rounded-xl font-bold text-sm"></textarea>
                 </div>
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 text-slate-400 rounded-xl font-black uppercase text-[10px]">Cancel</button>
-                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white rounded-xl font-black uppercase text-[10px] shadow-lg shadow-blue-200">Sync to Sheet</button>
+                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white rounded-xl font-black uppercase text-[10px] shadow-lg">Sync to Sheet</button>
                 </div>
             </div>
         </div>
@@ -105,13 +105,12 @@
 
         function enterPortal() {
             document.getElementById('landing-page').style.display = 'none';
-            document.getElementById('app-content').classList.remove('hidden');
+            document.getElementById('app-interface').classList.remove('hidden');
             load();
         }
 
         function logout() {
-            localStorage.removeItem('agent'); // This resets the "session"
-            location.reload(); // Takes them back to the landing page
+            location.reload(); 
         }
 
         async function load() {
@@ -132,16 +131,10 @@
             list.innerHTML = filtered.map(l => {
                 const updated = l['Last Updated'] ? new Date(l['Last Updated']).toLocaleDateString() : 'Never';
                 return `
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                    <div onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')">
-                        <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">${l.Address || ''} • ${l.City || ''}, ${l.State || ''}</p>
-                        <span class="inline-block mt-3 text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded-md uppercase">Updated: ${updated}</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3 mt-5">
-                        <a href="tel:${l.Phone}" class="py-3 bg-blue-600 text-white rounded-xl text-center text-[10px] font-black uppercase tracking-widest shadow-md">Call</a>
-                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l['Lead Name'] + ' ' + (l.Address || ''))}" target="_blank" class="py-3 bg-slate-800 text-white rounded-xl text-center text-[10px] font-black uppercase tracking-widest shadow-md">GPS</a>
-                    </div>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100" onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')">
+                    <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">${l.Address || ''} • ${l.City || ''}</p>
+                    <span class="inline-block mt-3 text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded-md uppercase">Updated: ${updated}</span>
                 </div>`;
             }).join('');
         }
@@ -149,7 +142,7 @@
         function openModal(name) {
             const l = data.find(x => x['Lead Name'] === name);
             document.getElementById('m-title').innerText = name;
-            document.getElementById('m-full-address').innerText = `${l.Address || ''} • ${l.City || ''}, ${l.State || ''}`;
+            document.getElementById('m-full-address').innerText = `${l.Address || ''} • ${l.City || ''}`;
             document.getElementById('p-phone').innerText = l.Phone || "N/A";
             document.getElementById('p-contact').innerText = l['Contact Person'] || "N/A";
             document.getElementById('p-role').innerText = l['Decision Maker Role'] || "N/A";
