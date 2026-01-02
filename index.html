@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Top 50 Targets</title>
+    <title>Top 50 Targets Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
@@ -12,8 +12,7 @@
         #sidebar { transition: transform 0.3s ease-in-out; z-index: 600; width: 280px; }
         .sidebar-open { transform: translateX(0) !important; }
         .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 550; }
-        .stat-card { background: rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .profile-badge { background: #f1f5f9; padding: 8px 12px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .profile-card { background: #f1f5f9; padding: 12px; border-radius: 16px; border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body class="pb-20">
@@ -21,11 +20,7 @@
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
     <div id="sidebar" class="fixed top-0 left-0 h-full bg-[#0f172a] text-white p-6 -translate-x-full shadow-2xl overflow-y-auto">
-        <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">Dashboard</h2>
-        <div class="grid grid-cols-2 gap-3 mb-8">
-            <div class="stat-card"><p class="text-[9px] font-bold text-slate-400 uppercase">Active</p><p id="stat-active" class="text-xl font-black">0</p></div>
-            <div class="stat-card"><p class="text-[9px] font-bold text-blue-400 uppercase">Trials</p><p id="stat-trials" class="text-xl font-black text-blue-400">0</p></div>
-        </div>
+        <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6">Pipeline</h2>
         <nav class="space-y-1">
             <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
             <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
@@ -45,7 +40,7 @@
     </header>
 
     <div class="px-5 pt-6 max-w-md mx-auto">
-        <input type="text" id="search" oninput="render()" placeholder="Search leads..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none">
+        <input type="text" id="search" oninput="render()" placeholder="Search..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none font-medium">
     </div>
 
     <div id="list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
@@ -54,20 +49,20 @@
         <div class="bg-white w-full rounded-t-[2.5rem] p-8 max-h-[94vh] overflow-y-auto">
             
             <div class="mb-6">
-                <h2 id="m-title" class="text-2xl font-black text-slate-800 mb-1"></h2>
-                <p id="m-address" class="text-[10px] text-slate-400 font-bold uppercase mb-4"></p>
+                <h2 id="m-title" class="text-2xl font-black text-slate-800 leading-tight"></h2>
+                <p id="m-full-address" class="text-[10px] text-slate-400 font-bold uppercase mt-1 mb-4"></p>
                 
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="profile-badge">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="profile-card">
                         <label class="data-label">Phone</label>
                         <p id="p-phone" class="text-xs font-bold text-slate-700"></p>
                     </div>
-                    <div class="profile-badge">
+                    <div class="profile-card">
                         <label class="data-label">Contact Person</label>
                         <p id="p-contact" class="text-xs font-bold text-slate-700"></p>
                     </div>
-                    <div class="profile-badge col-span-2">
-                        <label class="data-label">Contact's Role</label>
+                    <div class="profile-card col-span-2">
+                        <label class="data-label">Contact Person's Role</label>
                         <p id="p-role" class="text-xs font-bold text-slate-700"></p>
                     </div>
                 </div>
@@ -76,7 +71,7 @@
             <div class="space-y-5 border-t pt-6">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="data-label">Status</label>
+                        <label class="data-label">Current Status</label>
                         <select id="m-status" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
                             <option value="Active">Active</option>
                             <option value="Ready for Trial">Ready for Trial</option>
@@ -86,7 +81,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="data-label">Visit Type</label>
+                        <label class="data-label">Log Visit As</label>
                         <select id="m-visit" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm">
                             <option value="First Touch">First Touch</option>
                             <option value="Follow up 1">Follow up 1</option>
@@ -102,11 +97,11 @@
                 </div>
 
                 <div class="space-y-4">
-                    <div><label class="data-label">1- Decision Maker Name</label><input type="text" id="m-gk" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
-                    <div><label class="data-label">2- Decision Maker Email</label><input type="email" id="m-email" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
-                    <div><label class="data-label">3- Purchasing Department</label><input type="text" id="m-purch" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
+                    <div><label class="data-label">Gatekeeper Name</label><input type="text" id="m-gk" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
+                    <div><label class="data-label">Decision Maker Email</label><input type="email" id="m-email" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
+                    <div><label class="data-label">Purchasing Contact</label><input type="text" id="m-purch" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
                     <div>
-                        <label class="data-label">4- Current Water Solution</label>
+                        <label class="data-label">Current Solution</label>
                         <select id="m-sol" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
                             <option value="Bottles">Bottles</option>
                             <option value="Competitor POE">Competitor POE</option>
@@ -114,12 +109,12 @@
                             <option value="None">None</option>
                         </select>
                     </div>
-                    <textarea id="m-notes" placeholder="Visit Notes..." class="w-full h-24 p-4 bg-slate-100 rounded-xl font-bold text-sm"></textarea>
+                    <textarea id="m-notes" placeholder="Add visit notes here..." class="w-full h-24 p-4 bg-slate-100 rounded-xl font-bold text-sm"></textarea>
                 </div>
 
                 <div class="flex gap-3 pt-2">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 text-slate-400 rounded-xl font-black uppercase text-[10px]">Cancel</button>
-                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white rounded-xl font-black uppercase text-[10px]">Sync to Sheet</button>
+                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white rounded-xl font-black uppercase text-[10px] shadow-lg shadow-blue-200">Sync to Sheet</button>
                 </div>
             </div>
         </div>
@@ -137,14 +132,7 @@
             document.getElementById('agent-display').innerText = agent;
             const res = await fetch(SCRIPT_URL);
             data = await res.json();
-            updateDashboard();
             render();
-        }
-
-        function updateDashboard() {
-            const myLeads = data.filter(l => (l.Agent || "").toString().toUpperCase() === agent.toUpperCase());
-            document.getElementById('stat-active').innerText = myLeads.filter(l => l.Status === 'Active').length;
-            document.getElementById('stat-trials').innerText = myLeads.filter(l => (l.Status || "").includes('Trial')).length;
         }
 
         function render() {
@@ -176,14 +164,14 @@
         function openModal(name) {
             const l = data.find(x => x['Lead Name'] === name);
             document.getElementById('m-title').innerText = name;
-            document.getElementById('m-address').innerText = `${l.Address} • ${l.City}, ${l.State}`;
+            document.getElementById('m-full-address').innerText = `${l.Address || ''} • ${l.City || ''}, ${l.State || ''}`;
             
             // PROFILE INFO
             document.getElementById('p-phone').innerText = l.Phone || "N/A";
             document.getElementById('p-contact').innerText = l['Contact Person'] || "N/A";
             document.getElementById('p-role').innerText = l['Decision Maker Role'] || "N/A";
 
-            // FORM FIELDS
+            // FORM FIELDS - SYNCED TO SHEET HEADERS
             document.getElementById('m-status').value = l.Status || "Active";
             document.getElementById('m-email').value = l.Email || "";
             document.getElementById('m-gk').value = l['Gatekeeper Name'] || "";
