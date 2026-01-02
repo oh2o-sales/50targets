@@ -19,15 +19,21 @@
 
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-    <div id="sidebar" class="fixed top-0 left-0 h-full bg-[#0f172a] text-white p-6 -translate-x-full shadow-2xl overflow-y-auto">
-        <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6">Pipeline</h2>
-        <nav class="space-y-1">
-            <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
-            <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
-            <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
-            <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
-            <button onclick="setFilter('Closed/Lost')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-red-400">Closed-Lost</button>
-        </nav>
+    <div id="sidebar" class="fixed top-0 left-0 h-full bg-[#0f172a] text-white p-6 -translate-x-full shadow-2xl overflow-y-auto flex flex-col">
+        <div class="flex-grow">
+            <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6">Pipeline</h2>
+            <nav class="space-y-1">
+                <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
+                <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
+                <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
+                <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
+                <button onclick="setFilter('Closed/Lost')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-red-400">Closed-Lost</button>
+            </nav>
+        </div>
+        
+        <div class="pt-6 border-t border-slate-800">
+            <button onclick="switchUser()" class="w-full p-4 bg-red-500/10 text-red-400 rounded-xl font-black uppercase text-[10px] tracking-widest">Switch User</button>
+        </div>
     </div>
 
     <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
@@ -124,16 +130,30 @@
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzrKNSpqT7Gmht22hH01op37C1t5Ut2NCRFubrl1N3dvR1udXsp5F-T2cY2evihEU2/exec";
         let data = [];
-        let agent = localStorage.getItem('agent') || "Mikes"; 
+        let agent = localStorage.getItem('agent'); 
         let filter = "Active";
+
+        // Prompt for agent name if not set
+        if (!agent) {
+            agent = prompt("Please enter your name (e.g., Mike):");
+            if (agent) localStorage.setItem('agent', agent);
+        }
 
         document.getElementById('m-date').valueAsDate = new Date();
 
         async function load() {
-            document.getElementById('agent-display').innerText = agent;
+            document.getElementById('agent-display').innerText = agent || "No Agent";
             const res = await fetch(SCRIPT_URL);
             data = await res.json();
             render();
+        }
+
+        function switchUser() {
+            const newAgent = prompt("Enter Agent Name:");
+            if (newAgent) {
+                localStorage.setItem('agent', newAgent);
+                location.reload();
+            }
         }
 
         function render() {
@@ -167,12 +187,10 @@
             document.getElementById('m-title').innerText = name;
             document.getElementById('m-full-address').innerText = `${l.Address || ''} • ${l.City || ''}, ${l.State || ''}`;
             
-            // PROFILE INFO
             document.getElementById('p-phone').innerText = l.Phone || "N/A";
             document.getElementById('p-contact').innerText = l['Contact Person'] || "N/A";
             document.getElementById('p-role').innerText = l['Decision Maker Role'] || "N/A";
 
-            // FORM FIELDS - SYNCED TO SHEET HEADERS
             document.getElementById('m-status').value = l.Status || "Active";
             document.getElementById('m-email').value = l.Email || "";
             document.getElementById('m-gk').value = l['Gatekeeper Name'] || "";
