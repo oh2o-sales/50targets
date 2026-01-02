@@ -3,66 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Top 50 Targets</title>
+    <title>Top 50 Targets Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; overscroll-behavior-y: contain; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-        #sidebar { transition: transform 0.3s ease-in-out; z-index: 600; width: 280px; }
+        #sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 600; width: 280px; }
         .sidebar-open { transform: translateX(0) !important; }
-        .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 550; }
-        .stat-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        #refresh-indicator { text-align: center; height: 0; overflow: hidden; transition: height 0.2s; font-size: 12px; font-weight: bold; color: #3b82f6; line-height: 40px; }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); z-index: 550; }
+        .stat-card { background: rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        #refresh-indicator { text-align: center; height: 0; overflow: hidden; transition: height 0.2s; font-size: 11px; font-weight: 900; color: #3b82f6; line-height: 40px; text-transform: uppercase; }
     </style>
 </head>
 <body class="pb-20">
 
-    <div id="refresh-indicator">Pulling...</div>
+    <div id="refresh-indicator">Release to Refresh</div>
 
-    <div id="sidebar" class="fixed top-0 left-0 h-full bg-slate-900 text-white p-6 -translate-x-full shadow-2xl overflow-y-auto">
-        <h2 class="text-xs font-black uppercase tracking-widest text-slate-500 mb-4">Dashboard</h2>
+    <div id="sidebar" class="fixed top-0 left-0 h-full bg-[#0f172a] text-white p-6 -translate-x-full shadow-2xl overflow-y-auto">
+        <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4">Dashboard</h2>
         <div class="grid grid-cols-2 gap-3 mb-8">
             <div class="stat-card"><p class="text-[9px] font-bold text-slate-400 uppercase">Active</p><p id="stat-active" class="text-xl font-black">0</p></div>
             <div class="stat-card"><p class="text-[9px] font-bold text-blue-400 uppercase">Trials</p><p id="stat-trials" class="text-xl font-black text-blue-400">0</p></div>
         </div>
+        
+        <h2 class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-4">Pipeline</h2>
         <nav class="space-y-1">
-            <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active</button>
-            <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Ready for Trial</button>
-            <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Trial Installed</button>
+            <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
+            <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
+            <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
+            <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
+            <button onclick="setFilter('Closed/Lost')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-red-400">Closed-Lost</button>
         </nav>
+        <button onclick="logout()" class="mt-10 w-full p-4 bg-red-950/30 text-red-400 text-[10px] font-black uppercase rounded-xl border border-red-900/20">Sign Out</button>
     </div>
 
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+
     <div id="app-interface">
-        <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
+        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
             <button onclick="toggleSidebar()" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
-            <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest">Active Leads</h1>
-            <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase"></div>
+            <div class="text-center">
+                <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Leads</h1>
+                <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase tracking-widest"></div>
+            </div>
+            <div class="w-10"></div>
         </header>
 
         <div class="px-5 pt-6 max-w-md mx-auto">
-            <input type="text" id="search" oninput="render()" placeholder="Search..." class="w-full p-4 rounded-2xl bg-white border outline-none">
+            <input type="text" id="search" oninput="render()" placeholder="Search company or city..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none font-medium">
         </div>
 
         <div id="list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
     </div>
 
-    <div id="modal" class="fixed inset-0 bg-black/50 z-[600] hidden flex items-end">
-        <div class="bg-white w-full rounded-t-[2.5rem] p-8 max-h-[92vh] overflow-y-auto">
+    <div id="modal" class="fixed inset-0 bg-black/60 z-[600] hidden flex items-end">
+        <div class="bg-white w-full rounded-t-[2.5rem] p-8 max-h-[94vh] overflow-y-auto shadow-2xl">
             <h2 id="m-title" class="text-2xl font-black text-slate-800 mb-6"></h2>
-            <div class="space-y-4">
+            
+            <div class="space-y-5">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="data-label">Status</label>
-                        <select id="m-status" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
+                        <select id="m-status" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
                             <option value="Active">Active</option>
                             <option value="Ready for Trial">Ready for Trial</option>
                             <option value="Trial Installed">Trial Installed</option>
+                            <option value="Closed/Won">Closed/Won</option>
+                            <option value="Closed/Lost">Closed/Lost</option>
                         </select>
                     </div>
                     <div>
-                        <label class="data-label">Log Visit</label>
-                        <select id="m-visit" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm">
+                        <label class="data-label">Visit Type</label>
+                        <select id="m-visit" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm outline-none">
                             <option value="First Touch">First Touch</option>
                             <option value="Follow up 1">Follow up 1</option>
                             <option value="Follow up 2">Follow up 2</option>
@@ -72,33 +85,42 @@
                 </div>
 
                 <div>
-                    <label class="data-label">1- Decision Maker Name</label>
-                    <input type="text" id="m-gk" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                    <label class="data-label">Visit Date</label>
+                    <input type="date" id="m-date" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm">
                 </div>
-                <div>
-                    <label class="data-label">2- Decision Maker Email</label>
-                    <input type="email" id="m-email" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+
+                <div class="space-y-4 border-t pt-4">
+                    <div>
+                        <label class="data-label">1- Decision Maker Name</label>
+                        <input type="text" id="m-gk" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold">
+                    </div>
+                    <div>
+                        <label class="data-label">2- Decision Maker Email</label>
+                        <input type="email" id="m-email" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold">
+                    </div>
+                    <div>
+                        <label class="data-label">3- Purchasing Department</label>
+                        <input type="text" id="m-purch" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold">
+                    </div>
+                    <div>
+                        <label class="data-label">4- Current Water Solution</label>
+                        <select id="m-sol" class="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold">
+                            <option value="None">None</option>
+                            <option value="Bottles">Bottles</option>
+                            <option value="Pantry/Distributor">Pantry/Distributor</option>
+                            <option value="Competitor POE">Competitor POE</option>
+                            <option value="Tap/Fountain">Tap/Fountain</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="data-label">Visit Notes</label>
+                        <textarea id="m-notes" class="w-full h-24 p-4 bg-slate-50 border border-slate-100 rounded-xl font-bold"></textarea>
+                    </div>
                 </div>
-                <div>
-                    <label class="data-label">3- Purchasing Department</label>
-                    <input type="text" id="m-purch" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
-                </div>
-                <div>
-                    <label class="data-label">4- Current Water Solution</label>
-                    <select id="m-sol" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
-                        <option value="None">None</option>
-                        <option value="Bottled Water">Bottled Water</option>
-                        <option value="Pantry Service">Pantry Service</option>
-                        <option value="Competitor Filtration">Competitor Filtration</option>
-                        <option value="Tap Only">Tap Only</option>
-                    </select>
-                </div>
-                
-                <textarea id="m-notes" placeholder="Notes..." class="w-full h-20 p-4 bg-slate-100 rounded-xl font-bold"></textarea>
-                
-                <div class="flex gap-3 pt-4">
-                    <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 rounded-xl font-bold text-slate-400">Cancel</button>
-                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-xl">Sync</button>
+
+                <div class="flex gap-3 pt-2">
+                    <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 text-slate-400 rounded-2xl font-black uppercase text-[10px]">Cancel</button>
+                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white rounded-2xl font-black uppercase text-[10px] shadow-lg shadow-blue-200">Sync to Sheet</button>
                 </div>
             </div>
         </div>
@@ -108,13 +130,18 @@
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw0OCYniHgN8-ZOGXFCH2xbisDq7YWopPWdj_GIMQqqvMU65sPb2jqGFr_rkC6vDgVl/exec";
         let data = [];
         let agent = localStorage.getItem('agent') || "Mikes"; 
+        let filter = "Active";
+
+        document.getElementById('m-date').valueAsDate = new Date();
 
         async function load() {
             document.getElementById('agent-display').innerText = agent;
-            const res = await fetch(SCRIPT_URL);
-            data = await res.json();
-            updateDashboard();
-            render();
+            try {
+                const res = await fetch(SCRIPT_URL);
+                data = await res.json();
+                updateDashboard();
+                render();
+            } catch(e) { alert("Error Loading Leads"); }
         }
 
         function updateDashboard() {
@@ -126,20 +153,28 @@
         function render() {
             const query = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('list');
-            const filtered = data.filter(l => (l.Agent || "").toString().toUpperCase() === agent.toUpperCase());
+            const filtered = data.filter(l => 
+                (l.Agent || "").toString().toUpperCase() === agent.toUpperCase() && 
+                (l.Status || "") === filter &&
+                ((l['Lead Name'] || "").toLowerCase().includes(query) || (l.City || "").toLowerCase().includes(query))
+            );
 
             list.innerHTML = filtered.map(l => {
-                // Formatting the Last Updated date for the card
-                const updatedDate = l['Last Updated'] ? new Date(l['Last Updated']).toLocaleDateString() : 'Never';
-                
+                const updated = l['Last Updated'] ? new Date(l['Last Updated']).toLocaleDateString() : 'Never';
                 return `
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-4">
-                    <h3 onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="font-black text-lg text-slate-800">${l['Lead Name']}</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">
-                        ${l.Address || ''} • ${l.City || ''}, ${l.State || ''}
-                    </p>
-                    <div class="mt-2 flex items-center gap-2">
-                        <span class="text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded-md uppercase">Updated: ${updatedDate}</span>
+                    <div onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')">
+                        <h3 class="font-black text-lg text-slate-800 leading-tight">${l['Lead Name']}</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">
+                            ${l.Address || ''} • ${l.City || ''}, ${l.State || ''}
+                        </p>
+                        <div class="mt-3 flex items-center gap-2">
+                            <span class="text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded-md uppercase tracking-tighter">Updated: ${updated}</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 mt-5">
+                        <a href="tel:${l.Phone}" class="py-3 bg-blue-600 text-white rounded-xl text-center text-[10px] font-black uppercase tracking-widest shadow-md">Call</a>
+                        <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(l['Lead Name'] + ' ' + (l.Address || ''))}" target="_blank" class="py-3 bg-slate-800 text-white rounded-xl text-center text-[10px] font-black uppercase tracking-widest shadow-md">GPS</a>
                     </div>
                 </div>`;
             }).join('');
@@ -150,22 +185,23 @@
             document.getElementById('m-title').innerText = name;
             document.getElementById('m-status').value = l.Status || "Active";
             document.getElementById('m-email').value = l.Email || "";
-            document.getElementById('m-gk').value = l['Decision Maker Name'] || l['Gatekeeper Name'] || "";
+            document.getElementById('m-gk').value = l['Gatekeeper Name'] || "";
             document.getElementById('m-purch').value = l['Purchasing Dept'] || "";
             document.getElementById('m-sol').value = l['Current Solution'] || "None";
-            document.getElementById('m-notes').value = l.Notes || "";
+            document.getElementById('m-notes').value = ""; // Reset for fresh visit
             document.getElementById('modal').style.display = 'flex';
         }
 
         async function sync() {
             const btn = document.getElementById('sync-btn');
-            btn.innerText = "Syncing..."; btn.disabled = true;
+            btn.innerText = "SYNCING..."; btn.disabled = true;
             const payload = {
                 leadName: document.getElementById('m-title').innerText,
                 status: document.getElementById('m-status').value,
                 visitType: document.getElementById('m-visit').value,
+                visitDate: document.getElementById('m-date').value,
                 email: document.getElementById('m-email').value,
-                gatekeeperName: document.getElementById('m-gk').value,
+                dmName: document.getElementById('m-gk').value,
                 purchasingDept: document.getElementById('m-purch').value,
                 currentSolution: document.getElementById('m-sol').value,
                 notes: document.getElementById('m-notes').value
@@ -174,8 +210,13 @@
             setTimeout(() => location.reload(), 1200);
         }
 
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('sidebar-open'); }
+        function toggleSidebar() { 
+            document.getElementById('sidebar').classList.toggle('sidebar-open'); 
+            document.getElementById('overlay').classList.toggle('block');
+        }
+        function setFilter(s) { filter = s; document.getElementById('view-title').innerText = s; toggleSidebar(); render(); }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
+        function logout() { localStorage.removeItem('agent'); location.reload(); }
         load();
     </script>
 </body>
