@@ -3,70 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Top 50 Targets Portal</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Top 50 Targets</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; overscroll-behavior-y: contain; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         #sidebar { transition: transform 0.3s ease-in-out; z-index: 600; width: 280px; }
         .sidebar-open { transform: translateX(0) !important; }
         .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 550; }
-        .stat-card { background: rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 12px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        #refresh-indicator { text-align: center; height: 0; overflow: hidden; transition: height 0.2s; font-size: 12px; font-weight: bold; color: #3b82f6; line-height: 40px; }
     </style>
 </head>
 <body class="pb-20">
 
+    <div id="refresh-indicator">Pull to Refresh...</div>
+
     <div id="login-screen" class="fixed inset-0 bg-white z-[700] flex flex-col items-center justify-center p-8 text-center">
-        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8" alt="Logo">
-        <h2 class="text-2xl font-black text-slate-800 mb-2">Target Portal</h2>
-        <input type="text" id="agent-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold mb-4 outline-none">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8">
+        <input type="text" id="agent-input" placeholder="Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold mb-4 outline-none">
         <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Access Portal</button>
     </div>
 
     <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-    <div id="sidebar" class="fixed top-0 left-0 h-full bg-slate-900 text-white p-6 -translate-x-full shadow-2xl overflow-y-auto">
-        <div class="flex flex-col h-full">
-            <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6">Performance</h2>
-            
-            <div class="grid grid-cols-2 gap-3 mb-8">
-                <div class="stat-card"><p class="text-[9px] font-bold text-slate-400 uppercase">Active</p><p id="stat-active" class="text-xl font-black">0</p></div>
-                <div class="stat-card"><p class="text-[9px] font-bold text-blue-400 uppercase">Trials</p><p id="stat-trials" class="text-xl font-black text-blue-400">0</p></div>
-            </div>
-
-            <nav class="space-y-1 flex-grow">
-                <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
-                <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
-                <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
-                <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
-            </nav>
-            
-            <button onclick="logout()" class="mt-8 p-4 bg-red-900/20 rounded-xl text-xs font-black uppercase text-red-400 border border-red-900/30">Log Out</button>
-        </div>
+    <div id="sidebar" class="fixed top-0 left-0 h-full bg-slate-900 text-white p-6 -translate-x-full shadow-2xl">
+        <h2 class="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-6">Pipeline</h2>
+        <nav class="space-y-1">
+            <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
+            <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
+            <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
+            <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
+        </nav>
+        <button onclick="logout()" class="mt-12 w-full p-4 bg-red-900/10 rounded-xl text-xs font-black uppercase text-red-400">Log Out</button>
     </div>
 
     <div id="app-interface" class="hidden">
         <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
-            <button onclick="toggleSidebar()" class="p-2 -ml-2"><svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
-            <div class="flex flex-col items-center">
+            <button onclick="toggleSidebar()" class="p-2"><svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+            <div class="text-center">
                 <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Leads</h1>
-                <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase tracking-widest"></div>
+                <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase"></div>
             </div>
             <div class="w-10"></div>
         </header>
-
         <div class="px-5 pt-6 max-w-md mx-auto">
-            <input type="text" id="search" oninput="render()" placeholder="Search leads..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none">
+            <input type="text" id="search" oninput="render()" placeholder="Search leads..." class="w-full p-4 rounded-2xl bg-white border shadow-sm outline-none font-medium">
         </div>
-
         <div id="list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
     </div>
 
     <div id="modal" class="fixed inset-0 bg-black/50 z-[600] hidden flex items-end">
-        <div class="bg-white w-full rounded-t-[2.5rem] p-8 max-h-[92vh] overflow-y-auto shadow-2xl">
+        <div class="bg-white w-full rounded-t-[2.5rem] p-8 max-h-[92vh] overflow-y-auto">
             <h2 id="m-title" class="text-2xl font-black text-slate-800 mb-6"></h2>
-            
             <div class="space-y-5">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
@@ -79,37 +70,59 @@
                         </select>
                     </div>
                     <div>
-                        <label class="data-label">Visit Type</label>
+                        <label class="data-label">Log Visit Type</label>
                         <select id="m-visit" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm">
                             <option value="First Touch">First Touch</option>
-                            <option value="Follow up">Follow up</option>
+                            <option value="Follow up 1">Follow up 1</option>
+                            <option value="Follow up 2">Follow up 2</option>
+                            <option value="Follow up 3">Follow up 3</option>
                         </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="data-label">Visit Date</label>
+                        <input type="date" id="m-date" class="w-full p-4 bg-blue-50 text-blue-600 rounded-xl font-bold text-sm outline-none">
                     </div>
                 </div>
 
                 <div class="space-y-3">
-                    <input type="email" id="m-email" placeholder="Decision Maker Email" class="w-full p-4 bg-slate-100 rounded-xl text-sm font-bold">
-                    <input type="text" id="m-gk" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl text-sm font-bold">
-                    <input type="text" id="m-purch" placeholder="Purchasing Dept" class="w-full p-4 bg-slate-100 rounded-xl text-sm font-bold">
-                    <input type="text" id="m-sol" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl text-sm font-bold">
-                    <textarea id="m-notes" placeholder="Notes..." class="w-full h-24 p-4 bg-slate-100 rounded-xl text-sm font-bold"></textarea>
+                    <input type="email" id="m-email" placeholder="Decision Maker Email" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                    <input type="text" id="m-gk" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                    <input type="text" id="m-purch" placeholder="Purchasing Dept" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                    <input type="text" id="m-sol" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold">
+                    <textarea id="m-notes" placeholder="Visit Notes..." class="w-full h-24 p-4 bg-slate-100 rounded-xl font-bold"></textarea>
                 </div>
 
                 <div class="flex gap-3 pt-4">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 rounded-xl font-bold text-slate-400 uppercase text-[10px]">Cancel</button>
-                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-xl shadow-lg uppercase text-[10px]">Sync to Sheet</button>
+                    <button id="sync-btn" onclick="sync()" class="flex-1 py-4 bg-blue-600 text-white font-black rounded-xl uppercase text-[10px]">Sync to Sheet</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- PASTE YOUR WORKING SCRIPT URL HERE ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypJPT487h1y374j8O9xieSkDqSM0HWFGUdF2eZSV4FxuZMyyYtLz0wmBy5z75vQ6ml/exec";
-        
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby7p-3ZwjCIHVOIlNRfjsCdKXOVmEYSFOebEYjKEFg0AYu_A6bx6E03H5-MB2UGQzU/exec";
         let data = [];
         let agent = localStorage.getItem('agent') || "";
         let filter = "Active";
+
+        // Set default date to today
+        document.getElementById('m-date').valueAsDate = new Date();
+
+        // Pull to refresh
+        let touchStart = 0;
+        window.addEventListener('touchstart', e => touchStart = e.touches[0].pageY);
+        window.addEventListener('touchmove', e => {
+            const touchMove = e.touches[0].pageY;
+            if (window.scrollY === 0 && touchMove > touchStart) {
+                const diff = touchMove - touchStart;
+                if (diff < 80) document.getElementById('refresh-indicator').style.height = diff + 'px';
+            }
+        }, {passive: true});
+        window.addEventListener('touchend', () => {
+            if (parseInt(document.getElementById('refresh-indicator').style.height) > 50) location.reload();
+            document.getElementById('refresh-indicator').style.height = '0';
+        });
 
         if(agent) { 
             document.getElementById('login-screen').classList.add('hidden');
@@ -127,14 +140,7 @@
             document.getElementById('agent-display').innerText = agent;
             const res = await fetch(SCRIPT_URL);
             data = await res.json();
-            updateStats();
             render();
-        }
-
-        function updateStats() {
-            const myLeads = data.filter(l => (l.Agent || "").toString().toUpperCase() === agent.toUpperCase());
-            document.getElementById('stat-active').innerText = myLeads.filter(l => l.Status === 'Active').length;
-            document.getElementById('stat-trials').innerText = myLeads.filter(l => (l.Status || "").includes('Trial')).length;
         }
 
         function render() {
@@ -147,8 +153,8 @@
             );
 
             list.innerHTML = filtered.map(l => `
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                    <h3 onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="font-black text-lg text-slate-800 cursor-pointer">${l['Lead Name']}</h3>
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-4">
+                    <h3 onclick="openModal('${l['Lead Name'].replace(/'/g, "\\'")}')" class="font-black text-lg text-slate-800">${l['Lead Name']}</h3>
                     <p class="text-[10px] text-slate-400 font-bold uppercase">${l.Address || ''} • ${l.City || ''}</p>
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <a href="tel:${l.Phone}" class="py-3 bg-blue-50 text-blue-600 rounded-xl text-center text-[10px] font-black uppercase">Call</a>
@@ -167,22 +173,22 @@
             document.getElementById('m-purch').value = l['Purchasing Dept'] || "";
             document.getElementById('m-sol').value = l['Current Solution'] || "";
             document.getElementById('m-notes').value = l.Notes || "";
-            document.getElementById('modal').classList.remove('hidden');
             document.getElementById('modal').style.display = 'flex';
         }
 
         async function sync() {
             const btn = document.getElementById('sync-btn');
-            btn.innerText = "SYNCING..."; btn.disabled = true;
+            btn.innerText = "Syncing..."; btn.disabled = true;
             const payload = {
                 leadName: document.getElementById('m-title').innerText,
                 status: document.getElementById('m-status').value,
+                visitType: document.getElementById('m-visit').value,
+                visitDate: document.getElementById('m-date').value, // NEW DATE PICKER VALUE
                 email: document.getElementById('m-email').value,
                 gatekeeperName: document.getElementById('m-gk').value,
                 purchasingDept: document.getElementById('m-purch').value,
                 currentSolution: document.getElementById('m-sol').value,
-                notes: document.getElementById('m-notes').value,
-                visitType: document.getElementById('m-visit').value
+                notes: document.getElementById('m-notes').value
             };
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
             setTimeout(() => location.reload(), 1200);
