@@ -58,13 +58,11 @@
         </header>
 
         <div class="px-5 pt-6 max-w-md mx-auto space-y-4">
-            <div id="connection-status" class="text-[9px] text-center font-bold text-amber-500 uppercase tracking-tighter animate-pulse">Connecting to database...</div>
+            <div id="connection-status" class="text-[9px] text-center font-bold text-amber-500 uppercase tracking-tighter animate-pulse">Connecting...</div>
             <input type="text" id="search-input" oninput="renderLeads()" placeholder="Search leads..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none">
         </div>
 
-        <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4 text-center">
-             <p class="text-slate-400 text-sm mt-10">No leads found for this filter.</p>
-        </div>
+        <div id="lead-list" class="max-w-md mx-auto px-5 py-6 space-y-4 text-center"></div>
     </div>
 
     <div id="modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[300] flex items-end justify-center">
@@ -94,13 +92,13 @@
                         </div>
                     </div>
                     <div class="space-y-3">
-                        <input type="date" id="visit-date" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
-                        <input type="email" id="email-input" placeholder="Decision Maker Email" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
-                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
-                        <input type="text" id="purchasing-input" placeholder="Purchasing Contact" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
-                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
+                        <input type="date" id="visit-date" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
+                        <input type="email" id="email-input" placeholder="Decision Maker Email" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
+                        <input type="text" id="gk-input" placeholder="Gatekeeper Name" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
+                        <input type="text" id="purchasing-input" placeholder="Purchasing Contact" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
+                        <input type="text" id="solution-input" placeholder="Current Solution" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
                     </div>
-                    <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl text-sm outline-none" placeholder="Details..."></textarea>
+                    <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl text-sm" placeholder="Notes..."></textarea>
                 </div>
             </div>
             <div class="p-8 bg-white border-t flex gap-3">
@@ -150,15 +148,20 @@
             try {
                 const response = await fetch(SCRIPT_URL);
                 allLeads = await response.json();
-                statusLabel.innerText = "Database Connected";
+                statusLabel.innerText = "Online";
                 statusLabel.classList.replace('text-amber-500', 'text-green-500');
                 statusLabel.classList.remove('animate-pulse');
                 renderLeads();
                 updateDashboard();
             } catch (e) { 
-                statusLabel.innerText = "Connection Failed";
+                statusLabel.innerText = "Offline";
                 statusLabel.classList.replace('text-amber-500', 'text-red-500');
             }
+        }
+
+        function getVal(obj, keyName) {
+            const key = Object.keys(obj).find(k => k.toLowerCase().trim() === keyName.toLowerCase().trim());
+            return key ? obj[key].toString() : "";
         }
 
         function updateDashboard() {
@@ -166,12 +169,6 @@
             document.getElementById('stat-active').innerText = agentLeads.filter(l => getVal(l, 'Status') === 'Active').length;
             document.getElementById('stat-trials').innerText = agentLeads.filter(l => getVal(l, 'Status').includes('Trial')).length;
             document.getElementById('stat-won').innerText = agentLeads.filter(l => getVal(l, 'Status') === 'Closed/Won').length;
-        }
-
-        // Helper function to find keys regardless of case
-        function getVal(obj, keyName) {
-            const key = Object.keys(obj).find(k => k.toLowerCase() === keyName.toLowerCase());
-            return key ? obj[key].toString() : "";
         }
 
         function toggleMenu() { 
@@ -197,24 +194,24 @@
             );
 
             if (filtered.length === 0) {
-                listDiv.innerHTML = `<p class="text-slate-400 text-sm mt-10">No leads found.</p>`;
+                listDiv.innerHTML = `<p class="text-slate-400 text-sm mt-10 font-bold">NO LEADS FOUND IN ${currentStatusFilter.toUpperCase()}</p>`;
                 return;
             }
 
             listDiv.innerHTML = filtered.map(l => {
-                const leadName = getVal(l, 'Lead Name');
-                const address = getVal(l, 'Address');
+                const name = getVal(l, 'Lead Name');
+                const addr = getVal(l, 'Address');
                 const city = getVal(l, 'City');
                 const phone = getVal(l, 'Phone').replace(/\D/g,'');
-                const mapLink = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(address + ' ' + city);
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' ' + addr + ' ' + city)}`;
                 
                 return `
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-4 text-left">
-                    <h3 onclick="openModal('${leadName.replace(/'/g, "\\'")}')" class="font-black text-lg text-slate-800 cursor-pointer">${leadName}</h3>
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">${address} • ${city}</p>
+                    <h3 onclick="openModal('${name.replace(/'/g, "\\'")}')" class="font-black text-lg text-slate-800 cursor-pointer">${name}</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">${addr} • ${city}</p>
                     <div class="grid grid-cols-2 gap-3 mt-4">
                         <a href="tel:${phone}" class="py-3 bg-blue-50 rounded-xl text-[10px] font-black text-blue-600 text-center uppercase">Call</a>
-                        <a href="${mapLink}" target="_blank" class="py-3 bg-slate-50 rounded-xl text-[10px] font-black text-slate-600 text-center uppercase border border-slate-100">GPS</a>
+                        <a href="${mapUrl}" target="_blank" class="py-3 bg-slate-50 rounded-xl text-[10px] font-black text-slate-600 text-center uppercase border border-slate-100">GPS</a>
                     </div>
                 </div>`;
             }).join('');
