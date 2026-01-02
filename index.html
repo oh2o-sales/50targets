@@ -18,6 +18,12 @@
 </head>
 <body class="pb-20">
 
+    <div id="login-screen" class="hidden fixed inset-0 bg-white z-[700] flex flex-col items-center justify-center p-8 text-center">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" class="h-16 mb-8">
+        <input type="text" id="agent-id-input" placeholder="Enter Agent Name" class="w-full max-w-xs p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center font-bold mb-4 outline-none">
+        <button onclick="login()" class="w-full max-w-xs py-5 bg-blue-600 text-white font-black rounded-2xl shadow-xl uppercase text-xs tracking-widest">Access Portal</button>
+    </div>
+
     <div id="overlay" class="overlay" onclick="toggleMenu()"></div>
 
     <div id="sidebar" class="fixed top-0 left-0 h-full bg-slate-900 text-white p-6 -translate-x-full shadow-2xl overflow-y-auto hide-scroll">
@@ -45,26 +51,26 @@
 
             <nav class="space-y-1 flex-grow">
                 <h3 class="text-[10px] font-black text-slate-600 uppercase px-4 py-2">Pipeline</h3>
-                <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm transition-all">Active Targets</button>
-                <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400 transition-all">Ready for Trial</button>
-                <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300 transition-all">Trial Installed</button>
-                <button onclick="setFilter('Trial Completed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-200 transition-all">Trial Completed</button>
+                <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
+                <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
+                <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
+                <button onclick="setFilter('Trial Completed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-200">Trial Completed</button>
                 
                 <h3 class="text-[10px] font-black text-slate-600 uppercase px-4 py-2 mt-4">Results</h3>
-                <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400 transition-all">Closed-Win</button>
-                <button onclick="setFilter('Closed/Lost')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-red-400 transition-all">Closed-Lost</button>
+                <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
+                <button onclick="setFilter('Closed/Lost')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-red-400">Closed-Lost</button>
             </nav>
 
-            <button onclick="logout()" class="mt-8 p-4 bg-slate-800 rounded-xl text-xs font-black uppercase text-slate-400">Log Out</button>
+            <button onclick="logout()" class="mt-8 p-4 bg-red-900/20 rounded-xl text-xs font-black uppercase text-red-400 border border-red-900/30">Log Out</button>
         </div>
     </div>
 
-    <div id="app-interface">
-        <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100 shadow-sm">
-            <button onclick="toggleMenu()" class="p-2 -ml-2"><svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
-            <div class="flex flex-col items-center">
-                <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Leads</h1>
-                <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase"></div>
+    <div id="app-interface" class="hidden">
+        <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
+            <button onclick="toggleMenu()" class="p-2"><svg class="w-6 h-6 text-slate-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+            <div class="text-center">
+                <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Targets</h1>
+                <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase tracking-tighter"></div>
             </div>
             <div class="w-10"></div>
         </header>
@@ -92,7 +98,7 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="space-y-1">
                             <label class="data-label">Status</label>
-                            <select id="status-input" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm outline-none">
+                            <select id="status-input" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
                                 <option value="Active">Active</option>
                                 <option value="Ready for Trial">Ready for Trial</option>
                                 <option value="Trial Installed">Trial Installed</option>
@@ -103,7 +109,7 @@
                         </div>
                         <div class="space-y-1">
                             <label class="data-label">Visit Type</label>
-                            <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-xl text-sm outline-none">
+                            <select id="visit-type" class="w-full p-4 bg-blue-50 text-blue-600 font-bold rounded-xl text-sm">
                                 <option value="First Touch">First Touch</option>
                                 <option value="Follow up 1">Follow up 1</option>
                                 <option value="Follow up 2">Follow up 2</option>
@@ -122,7 +128,7 @@
 
                     <div class="space-y-1">
                         <label class="data-label">Notes</label>
-                        <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl text-sm outline-none" placeholder="Details..."></textarea>
+                        <textarea id="note-input" class="w-full h-24 p-4 bg-slate-100 rounded-xl text-sm" placeholder="Details..."></textarea>
                     </div>
                 </div>
             </div>
@@ -140,13 +146,39 @@
         let currentAgent = localStorage.getItem('agentName') || "";
         let currentStatusFilter = "Active";
 
-        window.onload = () => { if (!currentAgent) window.location.href = "login.html"; else fetchLeads(); };
+        // APP INIT
+        window.onload = () => { 
+            if (!currentAgent) {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('app-interface').classList.add('hidden');
+            } else {
+                showApp();
+            }
+        };
 
-        function logout() { localStorage.removeItem('agentName'); window.location.href = "login.html"; }
+        // LOGIN/LOGOUT (FIXED)
+        function login() {
+            const val = document.getElementById('agent-id-input').value.trim();
+            if (val) {
+                localStorage.setItem('agentName', val);
+                location.reload();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('agentName');
+            location.reload(); // Refreshes page to trigger the Login Screen
+        }
+
+        function showApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-interface').classList.remove('hidden');
+            fetchLeads();
+        }
+
         function toggleMenu() { document.getElementById('sidebar').classList.toggle('sidebar-open'); document.getElementById('overlay').classList.toggle('block'); }
         function setFilter(s) { currentStatusFilter = s; document.getElementById('view-title').innerText = s; renderLeads(); toggleMenu(); }
 
-        // Dashboard Calculation
         function updateDashboard(leads) {
             const agentLeads = leads.filter(l => l['Agent'] && l['Agent'].toString().trim().toUpperCase() === currentAgent.toUpperCase());
             const active = agentLeads.filter(l => l['Status'] === 'Active').length;
@@ -247,9 +279,8 @@
 
         function requestProximity() {
             const btn = document.getElementById('proximity-btn');
-            btn.innerText = "GPS Active...";
-            // Note: Full distance sorting requires a Maps API key or complex JS math.
-            // This button currently acts as a visual placeholder for the agent.
+            btn.innerText = "GPS Tracking...";
+            // Ready for Lat/Long sorting
         }
     </script>
 </body>
