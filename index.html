@@ -32,7 +32,12 @@
 </head>
 <body class="pb-20">
 
-    <div id="landing-page">
+    <div id="loader" class="fixed inset-0 bg-white z-[2000] flex flex-col items-center justify-center transition-opacity duration-300">
+        <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" alt="Loading" class="w-32 animate-pulse mb-4">
+        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Loading...</p>
+    </div>
+
+    <div id="landing-page" style="display: none;">
         <img src="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png" alt="OH2O Logo" class="w-48 mb-10"> 
         <h1 class="text-slate-800 font-black text-3xl uppercase tracking-tighter mb-2">Targets Portal</h1>
         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-10">Enter your name to begin</p>
@@ -178,9 +183,14 @@
         let agent = localStorage.getItem('agent'); 
         let filter = "Active";
 
+        // APP STARTUP LOGIC
         if (agent) {
-            document.getElementById('landing-page').style.display = 'none';
+            // If we know the agent, keep loader visible and fetch data
             load();
+        } else {
+            // If no agent, hide loader and show landing page
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('landing-page').style.display = 'flex';
         }
 
         document.getElementById('m-date').valueAsDate = new Date();
@@ -190,7 +200,10 @@
             if(!val) return alert("Enter Agent Name");
             agent = val;
             localStorage.setItem('agent', agent);
+            
+            // Show Loader before starting the fetch
             document.getElementById('landing-page').style.display = 'none';
+            document.getElementById('loader').style.display = 'flex';
             load();
         }
 
@@ -201,14 +214,24 @@
 
         async function load() {
             if(agent !== "ADMIN") document.getElementById('agent-display').innerText = agent;
-            const res = await fetch(SCRIPT_URL);
-            data = await res.json();
-            populateTypes();
-            if(agent === "ADMIN") {
-                renderAdmin();
-            } else {
-                render();
-                document.getElementById('agent-view').style.display = 'block';
+            
+            try {
+                const res = await fetch(SCRIPT_URL);
+                data = await res.json();
+                
+                populateTypes();
+
+                if(agent === "ADMIN") {
+                    renderAdmin();
+                } else {
+                    render();
+                    document.getElementById('agent-view').style.display = 'block';
+                }
+            } catch (err) {
+                alert("Error loading data. Please check connection.");
+            } finally {
+                // HIDE LOADER when done
+                document.getElementById('loader').style.display = 'none';
             }
         }
 
@@ -346,6 +369,9 @@
         }
 
         async function sync() {
+            // SHOW LOADER
+            document.getElementById('loader').style.display = 'flex';
+            
             const btn = document.getElementById('sync-btn');
             btn.innerText = "SYNCING..."; btn.disabled = true;
             const payload = {
