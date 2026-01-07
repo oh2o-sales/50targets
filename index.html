@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/oh2o-sales/50targets/main/Logo.png">
+
     <title>Top 50 Targets Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
         .data-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
         #sidebar { transition: transform 0.3s ease-in-out; z-index: 600; width: 280px; }
         .sidebar-open { transform: translateX(0) !important; }
@@ -126,14 +134,12 @@
                         <label class="data-label">Phone</label>
                         <p id="p-phone" class="text-xs font-bold text-slate-700"></p>
                     </div>
-                    
                     <div class="profile-card">
                         <label class="data-label">Business Type</label>
                         <select id="m-type" class="w-full bg-transparent font-bold text-xs text-slate-700 outline-none p-0 mt-1 appearance-none">
                             <option value="">Select...</option>
-                            </select>
+                        </select>
                     </div>
-
                     <div class="profile-card">
                         <label class="data-label">Contact Person</label>
                         <p id="p-contact" class="text-xs font-bold text-slate-700"></p>
@@ -154,7 +160,6 @@
                 <div class="space-y-4">
                     <div><label class="data-label">1- Decision Maker Name</label><input type="text" id="m-gk" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
                     <div><label class="data-label">2- Decision Maker Email</label><input type="email" id="m-email" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
-                    
                     <div><label class="data-label">3- Purchasing Department</label><input type="text" id="m-purch" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
                     <div><label class="data-label">4- Current Water Solution</label><select id="m-sol" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"><option value="None">None</option><option value="Bottles">Bottles (5-Gallon)</option><option value="Pantry/Distributor">Pantry/Distributor</option><option value="Competitor POE">Competitor POE</option><option value="Tap/Fountain">Tap/Fountain</option></select></div>
                     <textarea id="m-notes" placeholder="Add visit notes here..." class="w-full h-24 p-4 bg-slate-100 rounded-xl font-bold text-sm"></textarea>
@@ -209,25 +214,19 @@
 
         function populateTypes() {
             const rawTypes = data.map(d => d['Business Type']);
-            // Data Hygiene: Force Title Case and Sort
             const uniqueTypes = [...new Set(rawTypes)]
                 .filter(t => t && t.toString().trim() !== "")
-                .map(t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase()) // Title Case
+                .map(t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase())
                 .sort();
             
-            // 1. Main Filter
             const filterSelect = document.getElementById('type-filter');
             let filterHtml = '<option value="All">All Business Types</option>';
             uniqueTypes.forEach(t => filterHtml += `<option value="${t}">${t}</option>`);
             filterSelect.innerHTML = filterHtml;
 
-            // 2. Modal Dropdown (New Location)
             const typeSelect = document.getElementById('m-type');
-            // Keep existing options logic if any, essentially recreating the list
             let modalHtml = '<option value="">Select Type...</option>';
             uniqueTypes.forEach(t => modalHtml += `<option value="${t}">${t}</option>`);
-            // Add an "Other" option or allow typing? 
-            // Since we moved to a select in profile, we restrict to existing + Other
             modalHtml += '<option value="Other">Other</option>'; 
             typeSelect.innerHTML = modalHtml;
         }
@@ -245,7 +244,6 @@
             );
 
             list.innerHTML = filtered.map(l => {
-                // 30-Day Neglect Logic
                 const lastUpdate = l['Last Updated'] ? new Date(l['Last Updated']) : null;
                 const now = new Date();
                 let daysSince = 0;
@@ -261,8 +259,7 @@
                     }
                 }
 
-                // Status Border Logic
-                let borderClass = "border-slate-100"; // Default
+                let borderClass = "border-slate-100";
                 if(l.Status === "Closed/Won") borderClass = "border-l-[6px] border-l-green-500 border-slate-100";
                 else if(l.Status === "Closed/Lost") borderClass = "border-l-[6px] border-l-red-300 border-slate-100 opacity-75";
                 else if(l.Status === "Active") borderClass = "border-l-[6px] border-l-blue-500 border-slate-100";
@@ -344,10 +341,7 @@
             document.getElementById('m-gk').value = l['Gatekeeper Name'] || "";
             document.getElementById('m-purch').value = l['Purchasing Dept'] || "";
             document.getElementById('m-sol').value = l['Current Solution'] || "None";
-            
-            // Set Dropdown Value (Moved to Profile Section)
             document.getElementById('m-type').value = l['Business Type'] || "";
-            
             document.getElementById('modal').style.display = 'flex';
         }
 
