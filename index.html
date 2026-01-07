@@ -63,14 +63,7 @@
         
         <select id="type-filter" onchange="render()" class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none font-bold text-slate-600 text-xs uppercase tracking-wider">
             <option value="All">All Business Types</option>
-            <option value="Restaurant">Restaurant</option>
-            <option value="Office">Office</option>
-            <option value="Retail">Retail</option>
-            <option value="Medical">Medical</option>
-            <option value="Industrial">Industrial</option>
-            <option value="Gym">Gym</option>
-            <option value="Other">Other</option>
-        </select>
+            </select>
     </div>
 
     <div id="list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
@@ -98,16 +91,9 @@
                     
                     <div>
                         <label class="data-label">3- Business Type</label>
-                        <select id="m-type" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
-                            <option value="">Select Type...</option>
-                            <option value="Restaurant">Restaurant</option>
-                            <option value="Office">Office</option>
-                            <option value="Retail">Retail</option>
-                            <option value="Medical">Medical</option>
-                            <option value="Industrial">Industrial</option>
-                            <option value="Gym">Gym</option>
-                            <option value="Other">Other</option>
-                        </select>
+                        <input list="type-list" id="m-type" placeholder="Select or Type..." class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
+                        <datalist id="type-list">
+                            </datalist>
                     </div>
 
                     <div><label class="data-label">4- Purchasing Department</label><input type="text" id="m-purch" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
@@ -123,7 +109,6 @@
     </div>
 
     <script>
-        // NOTE: This URL must match your deployed script URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzrKNSpqT7Gmht22hH01op37C1t5Ut2NCRFubrl1N3dvR1udXsp5F-T2cY2evihEU2/exec";
         let data = [];
         let agent = localStorage.getItem('agent'); 
@@ -154,7 +139,31 @@
             document.getElementById('agent-display').innerText = agent;
             const res = await fetch(SCRIPT_URL);
             data = await res.json();
+            
+            // NEW: Populate Dropdowns dynamically from Sheet Data
+            populateTypes();
+            
             render();
+        }
+
+        function populateTypes() {
+            // Extract unique business types from the loaded data (Column W)
+            // 'Business Type' must match the Header in the Google Sheet exactly
+            const rawTypes = data.map(d => d['Business Type']);
+            const uniqueTypes = [...new Set(rawTypes)].filter(t => t && t.toString().trim() !== "").sort();
+
+            // Populate the Main Filter Dropdown
+            const filterSelect = document.getElementById('type-filter');
+            // Keep "All" as first option
+            let filterHtml = '<option value="All">All Business Types</option>';
+            uniqueTypes.forEach(t => filterHtml += `<option value="${t}">${t}</option>`);
+            filterSelect.innerHTML = filterHtml;
+
+            // Populate the Modal Datalist (for input suggestions)
+            const typeList = document.getElementById('type-list');
+            let listHtml = '';
+            uniqueTypes.forEach(t => listHtml += `<option value="${t}">`);
+            typeList.innerHTML = listHtml;
         }
 
         function render() {
@@ -199,7 +208,7 @@
             document.getElementById('m-purch').value = l['Purchasing Dept'] || "";
             document.getElementById('m-sol').value = l['Current Solution'] || "None";
             
-            // NEW: Load Business Type
+            // Load Business Type (Works with input+datalist just like a normal input)
             document.getElementById('m-type').value = l['Business Type'] || "";
             
             document.getElementById('modal').style.display = 'flex';
@@ -218,8 +227,6 @@
                 purchasingDept: document.getElementById('m-purch').value,
                 currentSolution: document.getElementById('m-sol').value,
                 notes: document.getElementById('m-notes').value,
-                
-                // NEW: Send Business Type
                 businessType: document.getElementById('m-type').value
             };
             await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
