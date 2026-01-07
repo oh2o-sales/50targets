@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Top 50 Targets Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
@@ -16,6 +17,9 @@
         
         /* SIMPLE WHITE LANDING PAGE */
         #landing-page { position: fixed; inset: 0; background: #ffffff; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        
+        /* ADMIN DASHBOARD STYLES */
+        .stat-card { background: white; padding: 20px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05); }
     </style>
 </head>
 <body class="pb-20">
@@ -26,47 +30,93 @@
         <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-10">Enter your name to begin</p>
         
         <div class="w-full max-w-xs space-y-4">
-            <input type="text" id="agent-input" placeholder="Enter Agent Name" class="w-full p-5 bg-slate-100 rounded-2xl border-none outline-none font-bold text-center text-slate-700">
+            <input type="text" id="agent-input" placeholder="Enter Name or 'ADMIN'" class="w-full p-5 bg-slate-100 rounded-2xl border-none outline-none font-bold text-center text-slate-700">
             <button onclick="enterPortal()" class="w-full py-5 bg-blue-600 text-white rounded-2xl font-black uppercase text-xs shadow-xl active:scale-95 transition-all">Enter Portal</button>
         </div>
     </div>
 
-    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
+    <div id="agent-view" style="display: none;">
+        <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-    <div id="sidebar" class="fixed top-0 left-0 h-full bg-[#0f172a] text-white p-6 -translate-x-full shadow-2xl flex flex-col">
-        <div class="flex-grow overflow-y-auto">
-            <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6">Pipeline</h2>
-            <nav class="space-y-1">
-                <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
-                <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
-                <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
-                <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
-                <button onclick="setFilter('Closed/Lost')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-red-400">Closed-Lost</button>
-            </nav>
+        <div id="sidebar" class="fixed top-0 left-0 h-full bg-[#0f172a] text-white p-6 -translate-x-full shadow-2xl flex flex-col">
+            <div class="flex-grow overflow-y-auto">
+                <h2 class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-6">Pipeline</h2>
+                <nav class="space-y-1">
+                    <button onclick="setFilter('Active')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm">Active Targets</button>
+                    <button onclick="setFilter('Ready for Trial')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-400">Ready for Trial</button>
+                    <button onclick="setFilter('Trial Installed')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-blue-300">Trial Installed</button>
+                    <button onclick="setFilter('Closed/Won')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-green-400">Closed-Win</button>
+                    <button onclick="setFilter('Closed/Lost')" class="w-full text-left p-4 rounded-xl hover:bg-slate-800 font-bold text-sm text-red-400">Closed-Lost</button>
+                </nav>
+            </div>
+            <div class="pt-6 border-t border-slate-800">
+                <button onclick="logout()" class="w-full p-4 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-colors">Log Out / Switch User</button>
+            </div>
         </div>
-        <div class="pt-6 border-t border-slate-800">
-            <button onclick="logout()" class="w-full p-4 text-slate-500 font-black uppercase text-[10px] tracking-widest hover:text-white transition-colors">Log Out / Switch User</button>
-        </div>
-    </div>
 
-    <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
-        <button onclick="toggleSidebar()" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
-        <div class="text-center">
-            <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Leads</h1>
-            <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase tracking-widest"></div>
-        </div>
-        <div class="w-10"></div>
-    </header>
+        <header class="bg-white sticky top-0 z-50 p-5 flex justify-between items-center border-b border-slate-100">
+            <button onclick="toggleSidebar()" class="p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+            <div class="text-center">
+                <h1 id="view-title" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Active Leads</h1>
+                <div id="agent-display" class="text-[9px] text-blue-600 font-black uppercase tracking-widest"></div>
+            </div>
+            <div class="w-10"></div>
+        </header>
 
-    <div class="px-5 pt-6 max-w-md mx-auto space-y-3">
-        <input type="text" id="search" oninput="render()" placeholder="Search..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none font-medium">
-        
-        <select id="type-filter" onchange="render()" class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none font-bold text-slate-600 text-xs uppercase tracking-wider">
-            <option value="All">All Business Types</option>
+        <div class="px-5 pt-6 max-w-md mx-auto space-y-3">
+            <input type="text" id="search" oninput="render()" placeholder="Search..." class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none font-medium">
+            <select id="type-filter" onchange="render()" class="w-full p-4 rounded-2xl bg-white border border-slate-200 shadow-sm outline-none font-bold text-slate-600 text-xs uppercase tracking-wider">
+                <option value="All">All Business Types</option>
             </select>
+        </div>
+
+        <div id="list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
     </div>
 
-    <div id="list" class="max-w-md mx-auto px-5 py-6 space-y-4"></div>
+    <div id="admin-view" style="display: none;" class="p-6 max-w-4xl mx-auto space-y-8">
+        <div class="flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-black text-slate-800">Manager Dashboard</h1>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Live Overview</p>
+            </div>
+            <button onclick="logout()" class="bg-slate-800 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase">Log Out</button>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="stat-card">
+                <p class="text-[10px] font-black uppercase text-slate-400">Total Leads</p>
+                <p id="kpi-total" class="text-3xl font-black text-slate-800 mt-1">-</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-[10px] font-black uppercase text-blue-400">Active</p>
+                <p id="kpi-active" class="text-3xl font-black text-blue-600 mt-1">-</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-[10px] font-black uppercase text-green-400">Closed Won</p>
+                <p id="kpi-won" class="text-3xl font-black text-green-600 mt-1">-</p>
+            </div>
+            <div class="stat-card">
+                <p class="text-[10px] font-black uppercase text-purple-400">Win Rate</p>
+                <p id="kpi-rate" class="text-3xl font-black text-purple-600 mt-1">-%</p>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="stat-card">
+                <h3 class="font-bold text-slate-700 mb-4 text-sm">Leads by Status</h3>
+                <canvas id="chart-status"></canvas>
+            </div>
+            <div class="stat-card">
+                <h3 class="font-bold text-slate-700 mb-4 text-sm">Leads by Business Type</h3>
+                <canvas id="chart-type"></canvas>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <h3 class="font-bold text-slate-700 mb-4 text-sm">Agent Leaderboard (Total Leads)</h3>
+            <canvas id="chart-agent"></canvas>
+        </div>
+    </div>
 
     <div id="modal" class="fixed inset-0 bg-black/60 z-[600] hidden flex items-end">
         <div class="bg-white w-full rounded-t-[2.5rem] p-8 max-h-[94vh] overflow-y-auto">
@@ -88,14 +138,11 @@
                 <div class="space-y-4">
                     <div><label class="data-label">1- Decision Maker Name</label><input type="text" id="m-gk" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
                     <div><label class="data-label">2- Decision Maker Email</label><input type="email" id="m-email" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
-                    
                     <div>
                         <label class="data-label">3- Business Type</label>
                         <input list="type-list" id="m-type" placeholder="Select or Type..." class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm">
-                        <datalist id="type-list">
-                            </datalist>
+                        <datalist id="type-list"></datalist>
                     </div>
-
                     <div><label class="data-label">4- Purchasing Department</label><input type="text" id="m-purch" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"></div>
                     <div><label class="data-label">5- Current Water Solution</label><select id="m-sol" class="w-full p-4 bg-slate-100 rounded-xl font-bold text-sm"><option value="None">None</option><option value="Bottles">Bottles (5-Gallon)</option><option value="Pantry/Distributor">Pantry/Distributor</option><option value="Competitor POE">Competitor POE</option><option value="Tap/Fountain">Tap/Fountain</option></select></div>
                     <textarea id="m-notes" placeholder="Add visit notes here..." class="w-full h-24 p-4 bg-slate-100 rounded-xl font-bold text-sm"></textarea>
@@ -136,36 +183,41 @@
         }
 
         async function load() {
-            document.getElementById('agent-display').innerText = agent;
+            if(agent !== "ADMIN") document.getElementById('agent-display').innerText = agent;
+            
+            // If ADMIN, don't fetch yet, wait for UI
             const res = await fetch(SCRIPT_URL);
             data = await res.json();
             
-            // NEW: Populate Dropdowns dynamically from Sheet Data
+            // Populate Dropdowns
             populateTypes();
-            
-            render();
+
+            if(agent === "ADMIN") {
+                renderAdmin();
+            } else {
+                render();
+                document.getElementById('agent-view').style.display = 'block';
+            }
         }
 
         function populateTypes() {
-            // Extract unique business types from the loaded data (Column W)
-            // 'Business Type' must match the Header in the Google Sheet exactly
             const rawTypes = data.map(d => d['Business Type']);
             const uniqueTypes = [...new Set(rawTypes)].filter(t => t && t.toString().trim() !== "").sort();
-
-            // Populate the Main Filter Dropdown
+            
+            // Filter dropdown
             const filterSelect = document.getElementById('type-filter');
-            // Keep "All" as first option
             let filterHtml = '<option value="All">All Business Types</option>';
             uniqueTypes.forEach(t => filterHtml += `<option value="${t}">${t}</option>`);
             filterSelect.innerHTML = filterHtml;
 
-            // Populate the Modal Datalist (for input suggestions)
+            // Modal datalist
             const typeList = document.getElementById('type-list');
             let listHtml = '';
             uniqueTypes.forEach(t => listHtml += `<option value="${t}">`);
             typeList.innerHTML = listHtml;
         }
 
+        // --- AGENT RENDERER ---
         function render() {
             const query = document.getElementById('search').value.toLowerCase();
             const typeFilter = document.getElementById('type-filter').value;
@@ -195,6 +247,64 @@
             }).join('');
         }
 
+        // --- ADMIN RENDERER ---
+        function renderAdmin() {
+            document.getElementById('admin-view').style.display = 'block';
+
+            // 1. Calculate KPIs
+            const total = data.length;
+            const active = data.filter(d => d.Status === "Active").length;
+            const won = data.filter(d => d.Status === "Closed/Won").length;
+            const rate = total > 0 ? Math.round((won / total) * 100) : 0;
+
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-active').innerText = active;
+            document.getElementById('kpi-won').innerText = won;
+            document.getElementById('kpi-rate').innerText = rate + "%";
+
+            // 2. Prep Charts Data
+            const statusCounts = {};
+            const typeCounts = {};
+            const agentCounts = {};
+
+            data.forEach(d => {
+                // Status
+                const s = d.Status || "Unknown";
+                statusCounts[s] = (statusCounts[s] || 0) + 1;
+                // Type
+                const t = d['Business Type'] || "Unspecified";
+                typeCounts[t] = (typeCounts[t] || 0) + 1;
+                // Agent
+                const a = d.Agent || "Unassigned";
+                agentCounts[a] = (agentCounts[a] || 0) + 1;
+            });
+
+            // 3. Render Charts
+            new Chart(document.getElementById('chart-status'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusCounts),
+                    datasets: [{ data: Object.values(statusCounts), backgroundColor: ['#3b82f6', '#10b981', '#ef4444', '#f59e0b', '#64748b'] }]
+                }
+            });
+
+            new Chart(document.getElementById('chart-type'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(typeCounts),
+                    datasets: [{ label: 'Leads', data: Object.values(typeCounts), backgroundColor: '#8b5cf6' }]
+                }
+            });
+
+            new Chart(document.getElementById('chart-agent'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(agentCounts),
+                    datasets: [{ label: 'Total Leads', data: Object.values(agentCounts), backgroundColor: '#3b82f6' }]
+                }
+            });
+        }
+
         function openModal(name) {
             const l = data.find(x => x['Lead Name'] === name);
             document.getElementById('m-title').innerText = name;
@@ -207,10 +317,7 @@
             document.getElementById('m-gk').value = l['Gatekeeper Name'] || "";
             document.getElementById('m-purch').value = l['Purchasing Dept'] || "";
             document.getElementById('m-sol').value = l['Current Solution'] || "None";
-            
-            // Load Business Type (Works with input+datalist just like a normal input)
             document.getElementById('m-type').value = l['Business Type'] || "";
-            
             document.getElementById('modal').style.display = 'flex';
         }
 
